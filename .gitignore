@@ -1,0 +1,14 @@
+
+
+# Dependency directories
+node_modules/
+
+knexfile.js
+
+.jshintrc
+todo.txt
+
+.vscode/launch.json
+
+public/uploads/*jpg
+public/uploads/thumb/*jpg
