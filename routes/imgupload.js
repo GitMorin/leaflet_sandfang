@@ -9,7 +9,7 @@ const sharp = require('sharp');
 const storage = multer.diskStorage({
   destination: './public/uploads/',
   filename: function(req, file, cb){
-    cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+    cb(null, Date.now() + path.extname(file.originalname));
   }
 });
 
@@ -34,42 +34,28 @@ function checkFileType(file, cb){
   };
 };
 
+// get filename from function
+// midlewear?
+
 router.post('/', function(req, res) {
   upload(req, res, function (err) {
-    console.log(req.file);
+    console.log(req);
     // sharp config
     let width = 500;
     //let height = null;
     sharp(req.file.path) //place where sharp find image
     .resize(width, null)
-    .toFile('./public/uploads/thumb/thumb_'+req.file.originalname, function(err){
+    .toFile('./public/uploads/thumb/thumb_'+req.file.filename, function(err){
       console.log('sharp worked!')
       if(!err){
         //res.send({file: `uploads/${req.file.filename}`});
-        res.send({file: `uploads/thumb/thumb_${req.file.originalname}`});
+        res.send({file: `uploads/thumb/thumb_${req.file.filename}`});
       }
     });
   }); 
 });
 
-
-// router.post('/', function (req, res) {
-//   upload(req, res, function (err) {
-//     console.log(req.file);
-//     //res.end();
-//     res.send({file: `uploads/${req.file.filename}`});
-//   });
-// });
-
-// router.post('/', function (req, res) {
-//   upload(req, res, function (err) {
-//     console.log(req.file);
-//     //res.end();
-//     res.send({file: `uploads/${req.file.filename}`});
-//   });
-// });
-
-// imagePath
+// update file name in db
 router.put('/:id', (req, res) => {
   queries.updateImgName(req.params.id, req.body)
     .then(pois => {
