@@ -618,13 +618,22 @@ $('#imageForm').submit(function(e) {
 
 $('#slettBilde').click(function(e) {
   e.preventDefault();
+  // get image name from src tag
+  // add it to the body element to pass it to server where the image is deleted.
+  var filesToDelete = [] 
+  let imageSource = $('#asset-image').prop('src')
+  filesToDelete.push('public/uploads/' + imageSource.substring(imageSource.length - 17));
+  filesToDelete.push('public/uploads/thumb/' + imageSource.substring(imageSource.length - 23)); // include thumb_)
+
   let data = { "img_name" : "deleted" }
+  data.deleteImg = filesToDelete; // add image array to delete to data obj
   console.log(data);
+
   $.ajax({
-    url: '/upload/' + current_id,
+    url: '/upload/delete/' + current_id,
     type: 'PUT',
-    dataType: "json",
-    data: data,
+    contentType: "application/json",
+    data: JSON.stringify(data),
   }).done(function(data){
     console.log(data.img_name);
     $('#asset-image').attr("src", '')

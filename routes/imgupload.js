@@ -4,6 +4,7 @@ const path = require('path');
 const router = express.Router();
 const queries = require('../db/queries');
 const sharp = require('sharp');
+const fs = require('fs');
 
 // Set Storage Engine
 const storage = multer.diskStorage({
@@ -55,7 +56,7 @@ router.post('/', function(req, res) {
   }); 
 });
 
-// update file name in db
+//update file name in db
 router.put('/:id', (req, res) => {
   queries.updateImgName(req.params.id, req.body)
     .then(pois => {
@@ -64,17 +65,62 @@ router.put('/:id', (req, res) => {
     .catch(err => {
       console.error('Update image error', err);
     });
+  });
+
+// delete files on server and update database to "deleted"
+router.put('/delete/:id', (req, res) => {
+  files = req.body.deleteImg
+  console.log(files);
+
+  deleteFiles(files, function(err) {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log('all files removed');
+      queries.updateImgName(req.params.id, req.body) // update db to set img_name to "deleted"
+      .then(pois => {
+        res.json(pois[0]);
+      })
+      .catch(err => {
+        console.error('Update image error', err);
+      });
+    }
+  });
 });
 
-// update file name in db
-router.put('/:id', (req, res) => {
-  queries.updateImgName(req.params.id, req.body)
-    .then(pois => {
-      res.json(pois[0]);
-    })
-    .catch(err => {
-      console.error('Update image error', err);
+function deleteFiles(files, callback){
+  var i = files.length;
+  files.forEach(function(filepath){
+    console.log(`removed ${filepath} `)
+    fs.unlink(filepath, function(err) {
+      i--;
+      if (err) {
+        callback(err);
+        return;
+      } else if (i <= 0) {
+        callback(null);
+      }
     });
-});
+  });
+}
+
+
+
+// update file name in db
+// router.put('/delete/:id', (req, res) => {
+//   //console.log(req.body);
+//   console.log(req.body.deleteImg[1]);
+//   fs.unlink(req.body.deleteImg, function (err) {
+//     if (err) throw err;
+//     console.log('File deleted!');
+//     queries.updateImgName(req.params.id, req.body) // update db to set img_name to "deleted"
+//       .then(pois => {
+//         res.json(pois[0]);
+//       })
+//       .catch(err => {
+//         console.error('Update image error', err);
+//       });
+//   });
+// });
 
 module.exports = router;
