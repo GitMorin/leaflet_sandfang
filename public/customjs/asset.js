@@ -649,6 +649,7 @@ $('#infoModal').on('hidden.bs.modal', function () {
   $('#sandfangLogTable > tbody > tr:nth-child(n+1)').remove(); // clear Tømming log table
   $('a.nav-item').removeClass('active');
   $('a.nav-item:first').addClass('active');
+  $("#slettBilde").css("display", "none");
 
 
   // Clear Skade table

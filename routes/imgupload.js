@@ -40,7 +40,7 @@ function checkFileType(file, cb){
 
 router.post('/', function(req, res) {
   upload(req, res, function (err) {
-    console.log(req);
+    //console.log(req);
     // sharp config
     let width = 500;
     //let height = null;
@@ -91,36 +91,17 @@ router.put('/delete/:id', (req, res) => {
 function deleteFiles(files, callback){
   var i = files.length;
   files.forEach(function(filepath){
-    console.log(`removed ${filepath} `)
     fs.unlink(filepath, function(err) {
       i--;
       if (err) {
         callback(err);
         return;
       } else if (i <= 0) {
+        console.log(`Removing file ${filepath} `)
         callback(null);
       }
     });
   });
 }
-
-
-
-// update file name in db
-// router.put('/delete/:id', (req, res) => {
-//   //console.log(req.body);
-//   console.log(req.body.deleteImg[1]);
-//   fs.unlink(req.body.deleteImg, function (err) {
-//     if (err) throw err;
-//     console.log('File deleted!');
-//     queries.updateImgName(req.params.id, req.body) // update db to set img_name to "deleted"
-//       .then(pois => {
-//         res.json(pois[0]);
-//       })
-//       .catch(err => {
-//         console.error('Update image error', err);
-//       });
-//   });
-// });
 
 module.exports = router;
