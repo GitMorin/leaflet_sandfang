@@ -293,9 +293,12 @@ function showInfo(current_id, layer) {
     $(".object-info").text(data.asset_type);
     $('#infoMerknedTextArea').val(data.merkned);
     $("#editMerknedTextArea").val(data.merkned);
-    if (data.img_name != null) {
+    //!(test == 'A' || test == 'B')
+    if (!(data.img_name == null || data.img_name == 'deleted')) {
       $('#asset-image').attr("src", '../' + data.img_name);
       $("#imageForm").hide();
+      //$('#slettBilde').show(); // show slett bilde button
+      $("#slettBilde").css("display", "block");
       // add small camera icon or something if image exist
     }
     if (data.kritisk_merkned == true) {
@@ -612,6 +615,22 @@ $('#imageForm').submit(function(e) {
       // make function to clear form and image when modal close
     });
   });
+});
+
+$('#slettBilde').click(function(e) {
+  e.preventDefault();
+  alert('clicked delete');
+  let data = { "img_name" : "deleted" }
+  console.log(data);
+  $.ajax({
+    url: '/upload/' + current_id,
+    type: 'PUT',
+    dataType: "json",
+    data: data,
+  }).done(function(data){
+    console.log(data.img_name);
+    $('#asset-image').attr("src", '')
+  })
 });
 
 // when infoModal close do actions

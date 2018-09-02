@@ -313,7 +313,7 @@
 
           <div class="tab-pane" id="sandfangBilde">
             <!--<%= typeof msg != 'undefined' ? msg : '' %>
-            <!--<img src="<%= typeof file != 'undefined' ? file : '' %>" class="img-fluid">-->
+            <img src="<%= typeof file != 'undefined' ? file : '' %>" class="img-fluid">-->
             <img src="" id="asset-image" class="img-fluid">
             <form action="/upload" method="POST" enctype="multipart/form-data" id="imageForm">
               <div class="custom-file">
@@ -322,8 +322,10 @@
               </div>
               <br>
               <br>
-              <input id="submitImage" class="btn btn-info btn-sm" type="submit" value="Last opp">
+              <button id="submitImage" class="btn btn-info btn-sm" type="submit" value="Last opp">
             </form>
+            <!-- INSERT DELETE FORM HERE -->
+            <button id="slettBilde" type="button" class="btn btn-danger btn-sm" type="submit">Slett bilde</button>
           </div>
         </div>
         <!-- Tab content end -->
