@@ -293,11 +293,9 @@ function showInfo(current_id, layer) {
     $(".object-info").text(data.asset_type);
     $('#infoMerknedTextArea').val(data.merkned);
     $("#editMerknedTextArea").val(data.merkned);
-    //!(test == 'A' || test == 'B')
     if (!(data.img_name == null || data.img_name == 'deleted')) {
       $('#asset-image').attr("src", '../' + data.img_name);
       $("#imageForm").hide();
-      //$('#slettBilde').show(); // show slett bilde button
       $("#slettBilde").css("display", "block");
       // add small camera icon or something if image exist
     }
@@ -595,6 +593,7 @@ $('#imageForm').submit(function(e) {
     contentType: false,
     processData: false,
   }).done(function(data){
+    $('#slettBilde').show(); // show slett bilde button
     // changing objekt key name from file to img_name
     // not neccesary but increase readability
     // migt want to strip off the file path from the file name
@@ -619,7 +618,6 @@ $('#imageForm').submit(function(e) {
 
 $('#slettBilde').click(function(e) {
   e.preventDefault();
-  alert('clicked delete');
   let data = { "img_name" : "deleted" }
   console.log(data);
   $.ajax({
@@ -630,6 +628,8 @@ $('#slettBilde').click(function(e) {
   }).done(function(data){
     console.log(data.img_name);
     $('#asset-image').attr("src", '')
+    $("#slettBilde").css("display", "none");
+    $("#imageForm").show();
   })
 });
 

@@ -8,8 +8,8 @@ const sharp = require('sharp');
 // Set Storage Engine
 const storage = multer.diskStorage({
   destination: './public/uploads/',
-  filename: function(req, file, cb){
-    cb(null, Date.now() + path.extname(file.originalname));
+  filename: function(req, file, cb){ //passing callback as argument
+    cb(null, Date.now() + path.extname(file.originalname)); // executing the callback
   }
 });
 
@@ -18,17 +18,17 @@ const upload = multer({
   storage: storage,
   limits:{fileSize: 1000000000},
   fileFilter: function(req, file, cb){
-    checkFileType(file, cb)
+    checkFileType(file, cb) // executing checkFileType, passing the cb to be executed
   }
 }).single('myImage');
 
 // check File Type
 function checkFileType(file, cb){
-  const filetypes = /jpeg|jpg|png|gif/; // Allowed ext
+  const filetypes = /jpeg|jpg|png|gif/; // Allowed extensions
   const extname = filetypes.test(path.extname(file.originalname).toLowerCase()); // check extension
   const mimetype = filetypes.test(file.mimetype); // check mime
   if(mimetype && extname){
-    return cb(null, true);
+    return cb(null, true); // Executing the cb To accept the file pass `true`, like so
   } else {
     cb('Error: Images Only!');
   };
@@ -53,6 +53,17 @@ router.post('/', function(req, res) {
       }
     });
   }); 
+});
+
+// update file name in db
+router.put('/:id', (req, res) => {
+  queries.updateImgName(req.params.id, req.body)
+    .then(pois => {
+      res.json(pois[0]);
+    })
+    .catch(err => {
+      console.error('Update image error', err);
+    });
 });
 
 // update file name in db

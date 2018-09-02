@@ -346,3 +346,9 @@ label span.label-text {
 .custom-file-input ~ .custom-file-label::after {
   content: "Elegir";
 }
+
+ /* Slett bilde button default */
+#slettBilde {
+  margin-top: 5px;
+  display: none;
+}
