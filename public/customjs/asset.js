@@ -297,6 +297,7 @@ function showInfo(current_id, layer) {
       $('#asset-image').attr("src", '../' + data.img_name);
       $("#imageForm").hide();
       $("#slettBilde").css("display", "block");
+      // add link to display large image
       // add small camera icon or something if image exist
     }
     if (data.kritisk_merkned == true) {

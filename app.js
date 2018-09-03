@@ -44,10 +44,6 @@ app.use('/upload', upload);
 //   });
 // });
 
-// app.post('/upload', (req, res) => {
-//   res.send('test');
-// });
-
 // Start Server
 app.listen(4321, function(){
   console.log('server is running on port 4321')
