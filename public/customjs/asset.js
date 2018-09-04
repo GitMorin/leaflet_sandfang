@@ -294,7 +294,9 @@ function showInfo(current_id, layer) {
     $('#infoMerknedTextArea').val(data.merkned);
     $("#editMerknedTextArea").val(data.merkned);
     if (!(data.img_name == null || data.img_name == 'deleted')) {
-      $('#asset-image').attr("src", '../' + data.img_name);
+      $('#asset-image').attr("src", '../' + data.img_name); // set src to thumb pic
+      $('#stort-bilde-lenke').attr("href", "map/"+current_id+"/stortbilde/"+data.img_name.substring(data.img_name.length - 17));
+      //$('#asset-image').attr("src", '../' + data.img_name);
       $("#imageForm").hide();
       $("#slettBilde").css("display", "block");
       // add link to display large image
