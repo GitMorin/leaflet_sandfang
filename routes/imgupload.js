@@ -6,6 +6,17 @@ const queries = require('../db/queries');
 const sharp = require('sharp');
 const fs = require('fs');
 
+
+// use same technique to update db record after post
+// need to add poi id in the req body though, not only image. Mime type???
+router.use(logger);
+
+function logger(req,res,next) {
+  console.log(new Date(), req.method, req.url);
+  next();
+};
+
+
 // Set Storage Engine
 const storage = multer.diskStorage({
   destination: './public/uploads/',
@@ -35,11 +46,11 @@ function checkFileType(file, cb){
   };
 };
 
-// get filename from function
-// midlewear?
-
 router.post('/', function(req, res) {
   upload(req, res, function (err) {
+    if (err){
+      console.log(err);
+    }
     //console.log(req);
     // sharp config
     let width = 500;
@@ -47,13 +58,13 @@ router.post('/', function(req, res) {
     sharp(req.file.path) //place where sharp find image
     .resize(width, null)
     .toFile('./public/uploads/thumb/thumb_'+req.file.filename, function(err){
-      console.log('sharp worked!')
+      //console.log('sharp worked reduced file size!')
       if(!err){
         //res.send({file: `uploads/${req.file.filename}`});
         res.send({file: `uploads/thumb/thumb_${req.file.filename}`});
       }
     });
-  }); 
+  });
 });
 
 //update file name in db
@@ -70,8 +81,7 @@ router.put('/:id', (req, res) => {
 // delete files on server and update database to "deleted"
 router.put('/delete/:id', (req, res) => {
   files = req.body.deleteImg
-  console.log(files);
-
+  //console.log(files);
   deleteFiles(files, function(err) {
     if (err) {
       console.log(err);
@@ -103,5 +113,10 @@ function deleteFiles(files, callback){
     });
   });
 }
+
+// function logger(req,res,next) {
+//   console.log(new Date(), req.method, req.url);
+//   next();
+// };
 
 module.exports = router;

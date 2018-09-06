@@ -82,7 +82,7 @@ module.exports = {
   },
   updateImgName(id, img_name) {
     const sql = knex('poi').where('id',id).update('img_name', img_name.img_name).returning('*');
-    console.log(sql.toString());
+    //console.log(sql.toString());
     return sql;
   }
 };

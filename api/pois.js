@@ -56,19 +56,13 @@ router.post('/skade', (req, res) =>
   damages.forEach(e => {
     let obj = {};
     obj.poi_id = poi_id;
-    console.log(e)
     obj.skade_type = e;
-    console.log(obj);
     data.push(obj);
   });
   console.log(data)
   queries.createSkade(data)
     .then(skader => {
       res.json(skader);
-      console.log(skader);
-      console.log(skader[0]);
-      console.log(skader[1]);
-      console.log('from then skader!')
     })
     .catch(function (err) {
       console.error('get comment error ' + err);
@@ -85,14 +79,14 @@ router.get('/skade/:id', (req, res) => {
   });
 });
 
-router.get('/:id', (req, res, next) => {
+router.get('/:id', (req, res) => {
   queries.getOne(req.params.id)
     .then(poi => {
       if (poi) {
-        console.log(poi);
+        //console.log(poi);
         res.json(poi);
       } else {
-        alert('something went wrong')
+        throw new Error('Did noy get any poi');
       }
     })
     .catch(err => {
@@ -103,13 +97,10 @@ router.get('/:id', (req, res, next) => {
 router.post('/', (req, res) => {
   console.log(req.body.asset_type);
   const poi = {
-    // place: req.body.place,
     asset_type: req.body.asset_type,
-    // numbers: req.body.inputNumber,
     geom: 'POINT(' + req.body.xCoord + ' ' + req.body.yCoord + ')',
   };
   queries.create(poi)
-    //.then(console.log('hepp'))
   .then(poi => {
     console.log(poi[0]);
     res.json(poi[0]);

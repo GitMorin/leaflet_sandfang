@@ -6,11 +6,10 @@ multer            = require('multer');
 // Init app
 const app = express();
 
-// Import pois router to app.js
-const pois = require('./api/pois');
-//const map = require('./routes/map');
-const map = require('./routes/map');
-const upload = require('./routes/imgupload');
+const pois = require('./api/pois'); // Import pois router to app.js
+//this gets so messey here... no sense, need to clean up
+const map = require('./routes/map'); // Imports the map route to app.js
+const upload = require('./routes/imgupload'); // Import the img upload route to app.js
 
 
 // Load view engine
@@ -21,12 +20,12 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
-// app.use(express.static('public'));
 
 // mount the pois api on the route api/pois
-app.use('/api/pois', pois);
+app.use('/api/pois', pois); // whenever we hit api/pois use the pois route /api/pois will run get all. /api/pois/last will run get last etc...
 app.use('/', map);
-app.use('/upload', upload);
+app.use('/upload', upload); // on the upload router I want to use the upload
+
 
 // catch 404 and forward error to handler
 // app.use(function(req, res, next) {
