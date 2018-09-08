@@ -810,6 +810,30 @@ $("input[type=file]").change(function () {
   if (fieldVal != undefined || fieldVal != "") {
     $(this).next(".custom-file-label").attr('data-content', fieldVal);
     $(this).next(".custom-file-label").text(fieldVal);
-  }
+  }  
+});
 
+// $("search-id").click(function(event) {
+//   event.preventDefault();
+//   console.log( "Handler for .click() called." );
+//   findId(5);
+// });
+
+
+$('#search-id').submit(function (e) { // handle the submit event
+  e.preventDefault();
+  //let formData = $(this).serialize();
+  var searchstring = $('#search-field');
+  //alert(searchstring.val());
+
+//add all pois
+  $.get({ 
+    url: '/api/pois/find/' + searchstring.val(),
+    })
+    .done(function (data) {
+      data.forEach(function(element) {
+        console.log(element);
+      });
+      //console.log(data[0]);
+  })
 });

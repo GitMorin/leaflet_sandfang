@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const queries = require('../db/queries');
 
+
+// route append on api/pois
+
 // get all pois
 router.get('/', (req, res) => {
   queries.getAll()
@@ -145,6 +148,13 @@ router.delete('/:id', isValidId, (req, res) => {
   });
 });
 
+router.get('/find/:id', (req, res) => {
+  queries.findId(req.params.id)
+    .then(poi => {
+      res.json(poi.rows);
+      console.log(poi)
+    })
+});
 
 
 // Middlewear check if id is valid

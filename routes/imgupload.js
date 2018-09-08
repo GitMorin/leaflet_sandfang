@@ -1,20 +1,16 @@
-const express = require('express');
-const multer = require('multer');
-const path = require('path');
-const router = express.Router();
-const queries = require('../db/queries');
-const sharp = require('sharp');
-const fs = require('fs');
+const express =   require('express');
+queries       =   require('../db/queries');
+multer        =   require('multer');
+path          =   require('path');
+router        =   express.Router();
+sharp         =   require('sharp');
+fs            =   require('fs');
 
 
 // use same technique to update db record after post
 // need to add poi id in the req body though, not only image. Mime type???
 router.use(logger);
 
-function logger(req,res,next) {
-  console.log(new Date(), req.method, req.url);
-  next();
-};
 
 
 // Set Storage Engine
@@ -86,7 +82,7 @@ router.put('/delete/:id', (req, res) => {
     if (err) {
       console.log(err);
     } else {
-      console.log('all files removed');
+      console.log('all files removed'); // this run even if one file is locked for deletion, why??
       queries.updateImgName(req.params.id, req.body) // update db to set img_name to "deleted"
       .then(pois => {
         res.json(pois[0]);
@@ -107,16 +103,16 @@ function deleteFiles(files, callback){
         callback(err);
         return;
       } else if (i <= 0) {
-        console.log(`Removing file ${filepath} `)
+        console.log(`Removing file ${filepath} `) // this only get called once
         callback(null);
       }
     });
   });
 }
 
-// function logger(req,res,next) {
-//   console.log(new Date(), req.method, req.url);
-//   next();
-// };
+function logger(req,res,next) {
+  console.log(new Date(), req.method, req.url);
+  next();
+};
 
 module.exports = router;

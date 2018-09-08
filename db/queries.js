@@ -84,5 +84,16 @@ module.exports = {
     const sql = knex('poi').where('id',id).update('img_name', img_name.img_name).returning('*');
     //console.log(sql.toString());
     return sql;
+  },
+ //SELECT * FROM poi WHERE cast(id as TEXT) like '%15%' limit 5
+ //.where('column', 'ilike', 'XXXX%')
+  findId(id) {
+    typeof(id);
+    console.log(typeof(parseInt(id)))
+    //const sql = knex.raw("select * from poi WHERE cast(id as TEXT) like '%5%' limit(5)")
+    const sql = knex.raw("select id from poi WHERE cast(id as TEXT) like '%'||?||'%' order by id asc limit(5)", [parseInt(id)])
+    //knex('users').whereRaw('id = ?', [1])
+    console.log(sql.toString());
+    return sql;
   }
-};
+}
