@@ -813,27 +813,43 @@ $("input[type=file]").change(function () {
   }  
 });
 
-// $("search-id").click(function(event) {
-//   event.preventDefault();
-//   console.log( "Handler for .click() called." );
-//   findId(5);
-// });
-
+function revertStyle(layer) {
+  setTimeout(function(){ 
+    layer.setStyle({
+      weight: 3,
+      color: '#ff0000',
+      radius: 10,
+      fillOpacity: 0.5,
+      fillColor: '#ff0000',
+    }); 
+  }, 5000);
+}
 
 $('#search-id').submit(function (e) { // handle the submit event
   e.preventDefault();
-  //let formData = $(this).serialize();
   var searchstring = $('#search-field');
-  //alert(searchstring.val());
-
-//add all pois
+  //add all pois
   $.get({ 
     url: '/api/pois/find/' + searchstring.val(),
     })
     .done(function (data) {
-      data.forEach(function(element) {
-        console.log(element);
-      });
-      //console.log(data[0]);
-  })
-});
+      console.log(data[0].id);
+    sandfang.eachLayer(function(layer){
+      if (data[0].id == layer.feature.properties.id){
+      console.log('Found it!');
+      layer.setStyle({
+        radius: 16,
+        weight: 3,
+        color: 'black',
+        fillOpacity: 0.8,
+        fillColor: 'green',
+        opacity: 0.9,
+      })
+      revertStyle(layer);
+      return map.setZoom(16).flyTo(layer.getLatLng(),17);
+      } else {
+        console.log('Sorry no match');
+      }
+    })
+    });
+  });

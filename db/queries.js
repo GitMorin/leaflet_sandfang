@@ -89,9 +89,9 @@ module.exports = {
  //.where('column', 'ilike', 'XXXX%')
   findId(id) {
     typeof(id);
-    console.log(typeof(parseInt(id)))
+    console.log(typeof(parseInt(id)));
     //const sql = knex.raw("select * from poi WHERE cast(id as TEXT) like '%5%' limit(5)")
-    const sql = knex.raw("select id from poi WHERE cast(id as TEXT) like '%'||?||'%' order by id asc limit(5)", [parseInt(id)])
+    const sql = knex.raw("select id from poi WHERE cast(id as TEXT) like '%'||?||'%' order by id asc limit(1)", [parseInt(id)]);
     //knex('users').whereRaw('id = ?', [1])
     console.log(sql.toString());
     return sql;
