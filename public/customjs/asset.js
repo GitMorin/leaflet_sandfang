@@ -814,17 +814,21 @@ $("input[type=file]").change(function () {
 });
 
 function revertStyle(layer) {
+  let setColor = getColor(layer.feature.properties.asset_type);
   setTimeout(function(){ 
     layer.setStyle({
       weight: 3,
-      color: '#ff0000',
       radius: 10,
       fillOpacity: 0.5,
-      fillColor: '#ff0000',
+      fillColor: setColor,
+      color: setColor
     }); 
   }, 5000);
 }
 
+// todo give message if no assets found
+// group layers somehow to search all pois
+// if asset type = then to x.forEach?
 $('#search-id').submit(function (e) { // handle the submit event
   e.preventDefault();
   var searchstring = $('#search-field');
@@ -834,9 +838,10 @@ $('#search-id').submit(function (e) { // handle the submit event
     })
     .done(function (data) {
       console.log(data[0].id);
-    sandfang.eachLayer(function(layer){
+      bisluk.eachLayer(function(layer){
       if (data[0].id == layer.feature.properties.id){
       console.log('Found it!');
+      console.log(layer);
       layer.setStyle({
         radius: 16,
         weight: 3,
