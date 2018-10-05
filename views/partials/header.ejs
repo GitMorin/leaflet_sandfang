@@ -16,6 +16,14 @@
         <a class="nav-link" href="#" data-toggle="modal" data-target="#selectObjectModal">Nytt Objekt</a>
       </li>
       <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Dropdown
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">   
+          <a class="dropdown-item" href="#"><input type="text" name="daterange" value="01/01/2018 - 01/15/2018" /></a>
+        </div>
+      </li>
+      <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownBakgrunnskart" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Bakgrunnskart
         </a>
@@ -33,27 +41,21 @@
         <ul role="menu" class="dropdown-menu" id="myDropdown">
         <!-- Change class name -->
           <li>
-            <label class="asset-checkbox">
-              <input id="sandfang-checkbox" type="checkbox" name="filtercheckbox" checked="checked"/>
+            <label class="asset-checkbox-label">
+              <input id="sandfang-checkbox" class="asset-checkbox" type="checkbox" value="sandfang" name="filtercheckbox" checked="checked"/>
               <span class="label-text">Sandfang</label>
             </label>
           </li>
           <li>
-            <label class="asset-checkbox">
-              <input id="bisluk-checkbox" type="checkbox" name="filtercheckbox"/>
+            <label class="asset-checkbox-label">
+              <input id="bisluk-checkbox" class="asset-checkbox" type="checkbox" value="bisluk" name="filtercheckbox"/>
               <span class="label-text">Bisluk</label>
             </label>
           </li>
           <li>
-            <label class="asset-checkbox">
-              <input id="strindasluk-checkbox"type="checkbox" name="filtercheckbox"/>
+            <label class="asset-checkbox-label">
+              <input id="strindasluk-checkbox" class="asset-checkbox" type="checkbox" value="strindasluk" name="filtercheckbox"/>
               <span class="label-text">Strindasluk</label>
-            </label>
-          </li>
-          <li>
-            <label class="asset-checkbox">
-              <input id="allatyper-checkbox"type="checkbox" name="filtercheckbox"/>
-              <span class="label-text">Alla typer</label>
             </label>
           </li>
         </ul> 

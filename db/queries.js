@@ -9,12 +9,29 @@ const db = knex({
 });
 
 const allPois = "SELECT row_to_json(fc) FROM ( SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features FROM (SELECT 'Feature' As type, ST_AsGeoJSON(ST_Transform(lg.geom,4326))::json As geometry , row_to_json((SELECT l FROM (SELECT id, merkned, regdate, asset_type, kritisk_merkned, img_name) As l)) As properties FROM poi As lg   ) As f )  As fc;";
+
 const getLast = "SELECT row_to_json(fc) FROM ( SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features FROM (SELECT 'Feature' As type, ST_AsGeoJSON(ST_Transform(lg.geom,4326))::json As geometry , row_to_json((SELECT l FROM (SELECT id, merkned, regdate, asset_type, kritisk_merkned, img_name) As l)) As properties FROM poi As lg order by id desc limit 1 ) As f )  As fc;";
+
+const allbbox = `SELECT row_to_json(fc) FROM ( SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features 
+FROM (SELECT 'Feature' As type,
+   ST_AsGeoJSON(ST_Transform(lg.geom,4326),4)::json As geometry, 
+   row_to_json(
+       (SELECT l FROM (SELECT id, asset_type) As l)) As properties 
+      FROM poi As lg where geom && ST_MakeEnvelope(?, ? ,?, ?, 4326)
+        AND asset_type = ?) As f )  As fc;`
+
+
+//const getType = 
 
 module.exports = {
   getAll() {
     // retrun all rows in pois table
     return knex.raw(allPois);
+  },
+  getBbox(southwest_lng,southwest_lat,northeast_lng,northeast_lat, asset_type) {
+    const sql =  knex.raw(allbbox, [southwest_lng,southwest_lat,northeast_lng,northeast_lat, asset_type]);
+    console.log(sql.toString());
+    return sql;
   },
   getOne(id) {
     return knex('poi').where('id', id).first();
@@ -87,11 +104,35 @@ module.exports = {
   },
  //SELECT * FROM poi WHERE cast(id as TEXT) like '%15%' limit 5
  //.where('column', 'ilike', 'XXXX%')
+  // findId(id) {
+  //   typeof(id);
+  //   console.log(typeof(parseInt(id)));
+  //   //const sql = knex.raw("select * from poi WHERE cast(id as TEXT) like '%5%' limit(5)")
+  //   const sql = knex.raw("select id from poi WHERE cast(id as TEXT) like '%'||?||'%' order by id asc limit(1)", [parseInt(id)]);
+  //   //knex('users').whereRaw('id = ?', [1])
+  //   console.log(sql.toString());
+  //   return sql;
+  // }
+
+
+  // findId(id) {
+  //   typeof(id);
+  //   console.log(typeof(parseInt(id)));
+  //   //const sql = knex.raw("select * from poi WHERE cast(id as TEXT) like '%5%' limit(5)")
+  //   // SELECT ST_AsGeoJSON(geom, 3) FROM public.poi where id = 55
+  //   const sql = knex.raw(getLast);
+  //   //knex('users').whereRaw('id = ?', [1])
+  //   console.log(sql.toString());
+  //   return sql;
+  // }
+
+
   findId(id) {
     typeof(id);
     console.log(typeof(parseInt(id)));
     //const sql = knex.raw("select * from poi WHERE cast(id as TEXT) like '%5%' limit(5)")
-    const sql = knex.raw("select id from poi WHERE cast(id as TEXT) like '%'||?||'%' order by id asc limit(1)", [parseInt(id)]);
+    // SELECT ST_AsGeoJSON(geom, 3) FROM public.poi where id = 55
+    const sql = knex.raw("SELECT id, ST_AsGeoJSON(geom, 5) FROM public.poi where cast(id as TEXT) like '%'||?||'%' order by id asc limit(1)", [parseInt(id)]);
     //knex('users').whereRaw('id = ?', [1])
     console.log(sql.toString());
     return sql;

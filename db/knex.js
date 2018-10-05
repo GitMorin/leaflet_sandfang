@@ -11,7 +11,6 @@ const knex = require('knex');
 // knex invoked with the environmentConfig
 const connection = knex(environmentConfig);
 // whenever we pass a configuration into knex, it creates a new db connection
-
 // export connection from the file
 module.exports = connection;
 

@@ -1,6 +1,7 @@
 var map = L.map('map').setView([63.429200, 10.394146], 14);
 var OpenStreetMap_Mapnik = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  maxZoom: 19,
+  maxZoom: 20,
+  crossOrigin: true,
   attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 });
 
@@ -8,8 +9,9 @@ var Stamen_Watercolor = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/w
 	attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
 	subdomains: 'abcd',
 	minZoom: 1,
-	maxZoom: 16,
-	ext: 'png'
+	maxZoom: 22,
+  ext: 'png',
+  crossOrigin: true,
 });
 
 // ADDING SCALE
@@ -131,6 +133,7 @@ var sandfang = new L.geoJson(null, {
     });
   },
   onEachFeature: function (feature, layer) {
+    layer.addTo(clusters);
     //layer.bindPopup(feature.properties.place);
     layer.bindTooltip(feature.properties.id + '', {
       sticky: true,
@@ -148,6 +151,7 @@ var bisluk = new L.geoJson(null, {
     });
   },
   onEachFeature: function (feature, layer) {
+    layer.addTo(clusters);
     //layer.bindPopup(feature.properties.place);
     layer.bindTooltip(feature.properties.id + '', {
       sticky: true,
@@ -164,6 +168,7 @@ var strindasluk = new L.geoJson(null, {
     });
   },
   onEachFeature: function (feature, layer) {
+    layer.addTo(clusters);
     //layer.bindPopup(feature.properties.place);
     layer.bindTooltip(feature.properties.id + '', {
       sticky: true,
@@ -278,9 +283,7 @@ function showInfo(current_id, layer) {
     });
 
   // populated infoForm
-  //console.log(layer.properties.merkned)
-  
-  // NEED TO GET NEW DATA FROM DATABASE!
+
   let getOneUrl = '/api/pois/' + current_id;
   $.get({
     url: getOneUrl
@@ -316,7 +319,7 @@ function showInfo(current_id, layer) {
   let regdato = new Date(layer.properties.regdate);
   $(".featureRegdate").append(regdato.getDate() + '.' + (regdato.getMonth() + 1) + '.' + regdato.getFullYear());
   $("#infoModal").modal();
-  objectType = layer.properties.asset_type;
+  let objectType = layer.properties.asset_type;
 };
 
 function renameSkade(skade) {
@@ -374,15 +377,30 @@ $('#registrert-skader-list').on('submit', '.edit-skader-form', function(e) {
   }
 });
 
-// add all pois
-$.get({ url: '/api/pois/'})
+// get Sandfang, StrindaSluk, BIsluk with bbox
+// $.get({ url: '/api/pois/'})
+//   .done(function (data) {
+//     getAssets(data);
+//     sandfang.addTo(map);
+//   })
+//   .fail(function (jqXHR, status, error) {
+//     console.log('Status: ' + status + '\n' + 'Error: ' + error);
+//   });
+
+
+
+function getPoints(bbox, asset_type){
+  //let asset_type = 'sandfang'
+  $.get({ url: '/api/pois/type/' + asset_type + '/bbox/'+ bbox})
   .done(function (data) {
+    console.log(data);
     getAssets(data);
-    sandfang.addTo(map);
+    //sandfang.addTo(map);
   })
   .fail(function (jqXHR, status, error) {
     console.log('Status: ' + status + '\n' + 'Error: ' + error);
   });
+}
 
 
 // save new object based on object type
@@ -743,6 +761,8 @@ map.on('move', function (e) {
   crosshair.setLatLng(map.getCenter());
 });
 
+
+// what do you do?
 function checkedFilter() {
   var filterItem = [];
   $('input[name=filterItem]:checked').map(function() {
@@ -751,43 +771,53 @@ function checkedFilter() {
   console.log(filterItem)
 }
 
-// Interact with checkboxes
-$('#sandfang-checkbox').change(function() {
-  if (this.checked) {
-    map.addLayer(sandfang);
-  } else {
-    map.removeLayer(sandfang);
-  }
-});
-$('#bisluk-checkbox').change(function() {
-  if (this.checked) {
-    console.log('add bisluk');
-    map.addLayer(bisluk);
-  } else {
-    map.removeLayer(bisluk);
-    console.log('remove bisluk');
-  }
-});
-$('#strindasluk-checkbox').change(function() {
-  if (this.checked) {
-    console.log('add strindasluk');
-    map.addLayer(strindasluk);
-  } else { 
-    map.removeLayer(strindasluk);
-    console.log('remove strindasluk');
-  }
-});
-$('#allatyper-checkbox').change(function() {
-  if (this.checked) {
-    map.addLayer(sandfang);
-    map.addLayer(bisluk);
-    map.addLayer(strindasluk);
-  } else {
-    map.removeLayer(sandfang);
-    map.removeLayer(bisluk);
-    map.removeLayer(strindasluk);
-  }
-});
+// // Interact with checkboxes
+// $('#sandfang-checkbox').change(function() {
+//   if (this.checked) {
+//     getPoints(map.getBounds().toBBoxString(), 'sandfang');
+//   } else {
+//     clusters.clearLayers();
+//     checkedAssetBoxes()
+//     //map.removeLayer(sandfang);
+//   }
+// });
+
+// // replace this to find what chechbox that was checked
+// $('#bisluk-checkbox').change(function() {
+//   if (this.checked) {
+//     getPoints(map.getBounds().toBBoxString(), 'bisluk')
+//   } else {
+//     clusters.clearLayers();
+//     checkedAssetBoxes()
+//     //map.removeLayer(bisluk);
+//   }
+// });
+// $('#strindasluk-checkbox').change(function() {
+//   if (this.checked) {
+//     getPoints(map.getBounds().toBBoxString(), 'strindasluk')
+//   } else { 
+//     clusters.clearLayers();
+//     checkedAssetBoxes()
+//     //map.removeLayer(strindasluk);
+//   }
+// });
+// $('#allatyper-checkbox').change(function() {
+//   if (this.checked) {
+//     clusters.clearLayers();
+//     getPoints(map.getBounds().toBBoxString(), 'strindasluk')
+//     getPoints(map.getBounds().toBBoxString(), 'bisluk')
+//     getPoints(map.getBounds().toBBoxString(), 'sandfang')
+//     // map.addLayer(sandfang);
+//     // map.addLayer(bisluk);
+//     // map.addLayer(strindasluk);
+//   } else {
+//     clusters.clearLayers();
+//     checkedAssetBoxes()
+//     //map.removeLayer(sandfang);
+//     //map.removeLayer(bisluk);
+//     //map.removeLayer(strindasluk);
+//   }
+// });
 
 $('#allatyper-checkbox').on('click', function() {
   if (this.checked == true)
@@ -816,6 +846,7 @@ $("input[type=file]").change(function () {
 function revertStyle(layer) {
   let setColor = getColor(layer.feature.properties.asset_type);
   setTimeout(function(){ 
+    resetStyle(layer)
     layer.setStyle({
       weight: 3,
       radius: 10,
@@ -826,9 +857,6 @@ function revertStyle(layer) {
   }, 5000);
 }
 
-// todo give message if no assets found
-// group layers somehow to search all pois
-// if asset type = then to x.forEach?
 $('#search-id').submit(function (e) { // handle the submit event
   e.preventDefault();
   var searchstring = $('#search-field');
@@ -837,24 +865,102 @@ $('#search-id').submit(function (e) { // handle the submit event
     url: '/api/pois/find/' + searchstring.val(),
     })
     .done(function (data) {
-      console.log(data[0].id);
-      bisluk.eachLayer(function(layer){
-      if (data[0].id == layer.feature.properties.id){
-      console.log('Found it!');
-      console.log(layer);
-      layer.setStyle({
-        radius: 16,
-        weight: 3,
-        color: 'black',
-        fillOpacity: 0.8,
-        fillColor: 'green',
-        opacity: 0.9,
-      })
-      revertStyle(layer);
-      return map.setZoom(16).flyTo(layer.getLatLng(),17);
+      if(data === undefined || data.length == 0){
+        alert('record does not exist in db');
       } else {
-        console.log('Sorry no match');
-      }
-    })
+        console.log(data[0].id);
+        let myStyle = ({
+          radius: 16,
+          weight: 3,
+          color: 'black',
+          fillOpacity: 0.8,
+          fillColor: 'green',
+          opacity: 0.9,
+        })
+
+      var foundLayer = new L.geoJson(JSON.parse(data[0].st_asgeojson), {
+        pointToLayer: function (feature, latlng) {
+          return L.circleMarker(latlng, {
+            radius: 20,
+            "weight": 5,
+            color: 'black'
+          });
+        },
+      }).addTo(map);
+
+      var group1 = L.featureGroup([
+        foundLayer,
+      ]).addTo(map);
+        
+      group1.bringToBack();
+      setTimeout(function(){ map.removeLayer(foundLayer); }, 5000);
+        return map.flyTo(foundLayer.getBounds().getCenter() ,17);
+      }   
     });
+});
+
+let clusters = L.markerClusterGroup();
+map.addLayer(clusters);
+
+getPoints(map.getBounds().toBBoxString(), 'sandfang');
+
+// on chechbox change clear and add new assets
+map.on('moveend', function() {
+  if (sandfang || bisluk || strindasluk) {
+    clusters.clearLayers();
+  };
+  //checkedAssetBoxes();
+  notify();
+});
+
+function notify(){
+  var els = document.querySelectorAll('.asset-checkbox:checked');
+  clusters.clearLayers();
+  for(var i = 0; i< els.length; i++){
+    getPoints(map.getBounds().toBBoxString(), els[i].value);
+  }
+}
+
+$('.asset-checkbox').change(function() {
+  notify();
+});
+
+// $('#bisluk-checkbox').change(function() {
+//   if (this.checked) {
+//     getPoints(map.getBounds().toBBoxString(), 'bisluk')
+//   } else {
+//     clusters.clearLayers();
+//     checkedAssetBoxes()
+//     //map.removeLayer(bisluk);
+//   }
+
+// function checkedAssetBoxes() {
+//   if (document.getElementById('sandfang-checkbox').checked) {
+//     getPoints(map.getBounds().toBBoxString(), 'sandfang');
+//   };
+//   if (document.getElementById('strindasluk-checkbox').checked) {
+//     getPoints(map.getBounds().toBBoxString(), 'strindasluk');
+//   };
+//   if (document.getElementById('bisluk-checkbox').checked) {
+//     getPoints(map.getBounds().toBBoxString(), 'bisluk');
+//   };
+//   if (document.getElementById('allatyper-checkbox').checked) {
+//     clusters.clearLayers();
+//     getPoints(map.getBounds().toBBoxString(), 'sandfang');
+//     getPoints(map.getBounds().toBBoxString(), 'bisluk');
+//     getPoints(map.getBounds().toBBoxString(), 'strindasluk');
+//   };
+// }
+
+$(function() {
+  $('input[name="daterange"]').daterangepicker({
+    opens: 'left'
+  }, function(start, end, label) {
+    console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
   });
+});
+
+L.control.locate({icon: 'fas fa-map-marker-alt', enableHighAccuracy: true}).addTo(map);
+
+// getBounds and add X buffer
+// if getBOunds is inside do nothing else request new data

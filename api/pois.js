@@ -16,6 +16,20 @@ router.get('/', (req, res) => {
     });
 });
 
+router.get('/type/:asset_type/bbox/:bbox', (req, res) => {
+  bbox = req.params.bbox.split(',')
+  console.log(bbox);
+  // split bbox by comma and set params for getBbox
+  queries.getBbox(bbox[0],bbox[1],bbox[2],bbox[3], req.params.asset_type)
+    .then(pois => {
+      res.json(pois.rows[0].row_to_json);
+    //res.send(req.params)
+    })
+    .catch(err => {
+      console.error('Get POI in bbox error', err);
+    });
+});
+
 router.get('/last', (req, res) => {
   queries.getLatestRaw()
     .then(poi => {
