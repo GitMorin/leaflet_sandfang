@@ -21,8 +21,8 @@ function allowAccess(req, res, next) {
     if(user.id == req.signedCookies.user_id && user.admin == true) {
       next();
     } else {
-      //res.render('../views/pages/map')
-      res.render('../views/pages/login', {message: 'Du må logge inn som Admin før at nå admin siden!'});
+      res.render('../views/pages/map')
+      //res.render('../views/pages/login', {message: 'Du må logge inn som Admin før at nå admin siden!'});
     }
   })
 }

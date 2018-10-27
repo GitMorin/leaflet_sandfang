@@ -964,3 +964,15 @@ L.control.locate({icon: 'fas fa-map-marker-alt', enableHighAccuracy: true}).addT
 
 // getBounds and add X buffer
 // if getBOunds is inside do nothing else request new data
+
+function logout() {
+  $.get({ url: '/auth/logut'})
+  .done(function (data) {
+    window.location = '/auth/login';
+  })
+}
+
+// AUTH
+$('#log-ut').click(function () {
+  logout();
+})

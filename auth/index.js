@@ -20,6 +20,11 @@ router.get('/signup', function (req, res) {
   res.render('../views/pages/signup');
 });
 
+router.get('/logut', function (req, res) {
+  res.clearCookie('user_id');
+  res.render('../views/pages/login');
+})
+
 router.get('/admin', authMiddlewear.ensureLoggedIn, authMiddlewear.allowAccess, function (req, res) {
   res.render('../views/pages/admin');
 });
