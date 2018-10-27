@@ -30,7 +30,7 @@ module.exports = {
   },
   getBbox(southwest_lng,southwest_lat,northeast_lng,northeast_lat, asset_type) {
     const sql =  knex.raw(allbbox, [southwest_lng,southwest_lat,northeast_lng,northeast_lat, asset_type]);
-    console.log(sql.toString());
+    //console.log(sql.toString());
     return sql;
   },
   getOne(id) {
@@ -134,7 +134,18 @@ module.exports = {
     // SELECT ST_AsGeoJSON(geom, 3) FROM public.poi where id = 55
     const sql = knex.raw("SELECT id, ST_AsGeoJSON(geom, 5) FROM public.poi where cast(id as TEXT) like '%'||?||'%' order by id asc limit(1)", [parseInt(id)]);
     //knex('users').whereRaw('id = ?', [1])
-    console.log(sql.toString());
+    //console.log(sql.toString());
     return sql;
+  },
+  getOneByEmail(email) {
+    return knex('user').where('email', email).first();
+  },
+  getUserById(id) {
+    return knex('user').where('id', id).first();
+  },
+  createUser(user) {
+    return knex('user').insert(user, ['id', 'is_active']).then(ids => {
+      return ids[0];
+    })
   }
 }
