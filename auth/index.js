@@ -25,8 +25,29 @@ router.get('/logut', function (req, res) {
   res.render('../views/pages/login');
 })
 
-router.get('/admin', authMiddlewear.ensureLoggedIn, authMiddlewear.allowAccess, function (req, res) {
-  res.render('../views/pages/admin');
+router.get('/admin', authMiddlewear.ensureLoggedIn, authMiddlewear.isAdmin, function (req, res) {
+  queries.getAllUserrs().then(users => {
+    console.log(users);
+    res.render('../views/pages/admin', {users:users});
+  });
+});
+
+router.get('admin/users', function (req, res) {
+  queries.getAllUserrs().then(users => {
+    console.log(users);
+    res.json({
+      message: users
+    });
+  })
+});
+
+router.delete('/delete/user/:id', function( req, res) {
+  let id = req.params.id;
+  queries.deleteUser(req.params.id).then(function(){
+    res.json({
+      message: id
+    })
+  })
 });
 
 function validUser(user) {

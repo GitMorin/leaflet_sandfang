@@ -145,7 +145,17 @@ module.exports = {
   },
   createUser(user) {
     return knex('user').insert(user, ['id', 'is_active']).then(ids => {
+      console.log(ids[0]);
       return ids[0];
     })
+  },
+  getAllUserrs(){
+    return knex.select('*').from('user')
+  },
+  deleteUser(id){
+    console.log(id);
+    return knex('user').where('id', id).del();
   }
+  
+  
 }

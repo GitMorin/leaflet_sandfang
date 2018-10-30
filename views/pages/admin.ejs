@@ -8,7 +8,9 @@
   <title>Admin</title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
   <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="crossorigin="anonymous"></script>
-  <link rel="stylesheet" type="text/css" href="/css/mystyle.css">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="/css/admin.css">
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="crossorigin="anonymous"></script>
 
   <script src="..\customjs\shared.js"></script>
 
@@ -19,37 +21,100 @@
   <h1>Admin tabell</h1>
 
   <div class="mt-5 auto w-75 mx-auto" id="user-table">
+    <h5>Registrer ny bruker</h3>
     <table class="table table-sm">
     <thead>
       <tr>
-        <th scope="col">#</th>
-        <th scope="col">First</th>
-        <th scope="col">Last</th>
-        <th scope="col">Handle</th>
+        <th>epost<th/>
+        <th>passord<th/>
+        <th>bekreft passord<th/>
+        <th>admin<th/>
+        <th><th/>
       </tr>
     </thead>
     <tbody>
+
       <tr>
-        <th scope="row">1</th>
-        <td>Mark</td>
-        <td>Otto</td>
-        <td>@mdo</td>
-      </tr>
-      <tr>
-        <th scope="row">2</th>
-        <td>Jacob</td>
-        <td>Thornton</td>
-        <td>@fat</td>
-      </tr>
-      <tr>
-        <th scope="row">3</th>
-        <td colspan="2">Larry the Bird</td>
-        <td>@twitter</td>
+      <form id="new-user">
+        <td><input type="email" class="form-control" id="email" placeholder="epost" name="epost" required><td/>
+        <td><input type="password" class="form-control" placeholder="passord" name="passord" id="password" required><td/>
+        <td><input type="password" class="form-control " placeholder="gjenta passord" id="confirm_password" required><div class="valid-feedback">Passord OK!</div><td/>
+        <td><input class="form-control" type="checkbox" id="inlineCheckbox1" name="admin" value="option1"><td/>
+        <td><button type="submit" class="btn btn-outline-light btn-sm"><i class="fas fa-plus-circle"></button></td>
+      </form>
       </tr>
     </tbody>
-  </table>
+    </table>
   </div>
+
+  
+  <div class="mt-5 auto w-75 mx-auto" id="user-table">
+  <h5>Bruker liste</h5>
+    <table class="table table-sm">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Epost</th>
+          <th scope="col">Passord</th>
+          <th scope="col">Admin</th>
+          <th scope="col"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% users.forEach(function(user) { %>
+        <tr>
+          <th scope="row"><%= user.id %></td>
+          <td><%= user.email %></td>
+          <td><%= user.password %></td>
+          <td><%= user.admin %></td>
+          <td><button type="submit" class="btn btn-outline-light btn-sm"><i class="fas fa-minus-circle"></button></td>
+        </tr>    
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+  
 </div>
 
+<script>
+var password = document.getElementById("password")
+  , confirm_password = document.getElementById("confirm_password");
+
+function validatePassword(){
+  if(password.value != confirm_password.value) {
+    confirm_password.setCustomValidity("Passordene må være like");
+    $('#confirm_password').addClass('is-invalid');
+    $('.valid-feedback').hide();
+  } else {
+    confirm_password.setCustomValidity('');
+    $('#confirm_password').addClass('is-valid');
+    $('#confirm_password').removeClass('is-invalid');
+    $('.valid-feedback').show();
+  }
+}
+
+password.onchange = validatePassword;
+confirm_password.onkeyup = validatePassword;
+
+
+$('.table tbody').on('click', '.btn', function(){
+  // get id of th
+  let id = ($(this).closest('tr').find('th').text());
+  //get table row
+  let row = $(this).closest('tr');
+  //post request to delete user
+  $.ajax({
+    type: "DELETE",
+    url: 'http://localhost:4321/auth/delete/user/' + id,
+    dataType: "json"
+  })
+  .done(function() {
+    // remove table row
+    row.remove();
+  });
+});
+
+
+</script>
 </body>
 </html>

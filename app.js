@@ -32,7 +32,6 @@ app.use('/scripts', express.static(__dirname + '/node_modules/leaflet.locatecont
 // }));
 
 app.use('/auth', auth)
-//app.use('/admin', authMiddlewear.ensureLoggedIn, auth);
 app.use('/api/pois', pois);
 app.use('/', authMiddlewear.ensureLoggedIn, map);
 app.use('/upload', upload);
