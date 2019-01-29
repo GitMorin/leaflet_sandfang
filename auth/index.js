@@ -9,17 +9,11 @@ const bodyParser = require('body-parser');
 
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
-router.get('/', (req, res) => {
-  res.json({
-    message: 'auth'
-  })
-});
-
 router.get('/login', function (req, res) {
   res.render('../views/pages/login');
 });
 
-router.get('/signup', function (req, res) {
+router.get('/signup', authMiddlewear.ensureLoggedIn, authMiddlewear.isAdmin, function (req, res) {
   res.render('../views/pages/signup');
 });
 
@@ -128,17 +122,17 @@ router.post('/login', urlencodedParser, (req, res, next) => {
             // res.json({
             //   message: 'Logged in!'
             // });
-            res.render('../views/pages/map', {message:'admin'});
+            res.render('../views/pages/map', {message:'admin'}); // Tror admin kan tas bort
           } else {
-            next(new Error('Invalid Login1'));
+            next(new Error('Feil passord'));
           }
         });
       } else {
-        next(new Error('Invalid Login2'));
+        next(new Error('ngen bruker registrert med den e-postadressen'));
       }
     }); 
   } else {
-    next(new Error('Invalid Login3'));
+    next(new Error('Feil passord')); // Might be a bit redundant, but does not hurt. Showing error for not valid user
   }
 });
 

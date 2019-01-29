@@ -10,58 +10,81 @@
   <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="crossorigin="anonymous"></script>
   <script src="\customjs\shared.js"></script>
 
+  <style>
+    body,html {
+      height: 100%;
+    }
+
+    .login-header{
+      font-size: 1.5rem;
+    }
+  </style>
+
 </head>
-<body class="container">
-<header class="page-header">
-  <h1>Login</h1>
-</header>
-<main>
-  <section>
-  <!-- if message sent from the router directly -->
-      <% if (typeof message !== 'undefined') { %>
-      <div class="alert alert-danger" role="alert" ><%= message %></div>
-    <% } %>
-    <div class="alert alert-danger" role="alert" id="errorMessage" style="display:none"></div>
-    <!-- Is this right action address? -->
-    <form class="form" method=post" action="/auth/login">
-    <div class="form-group">
-      <label for="email">Email</label>
-      <input type="email" class="form-control" id="email" placeholder="Enter your email" required>
+<body>
+
+    <div class="container d-flex h-100">
+      <div class="row align-self-center w-100">
+        <div class="col-4 mx-auto border bg-light p-0">
+        
+              <header class="page-header text-center bg-dark text-white pb-1 mb-2">
+                <h3 class="display-4 login-header">Login TK Sandfang App</h1>
+              </header>
+        
+            <main>
+              <section>
+                <div class="container">
+                  <!-- if message sent from the router directly -->
+                  <% if (typeof message !== 'undefined') { %>
+                  <div class="alert alert-danger" role="alert">
+                    <%= message %>
+                  </div>
+                  <% } %>
+                  <div class="alert alert-danger" role="alert" id="errorMessage" style="display:none"></div>
+                  <!-- Is this right action address? -->
+                  <form class="form" method=post" action="/auth/login">
+                    <div class="form-group">
+                      <label for="email">E-post</label>
+                      <input type="email" class="form-control" id="email" placeholder="Skriv inn din E-post" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="email">Passord</label>
+                      <input type="password" class="form-control" id="password" placeholder="Skriv inn passordet ditt"
+                        required>
+                    </div>
+                    <button type="submit" class="btn btn-default btn-success mb-3">
+                      Login
+                    </button>
+                  </form>
+                </div>
+              </section>
+            </main>    
+        </div>
+      </div>
     </div>
-    <div class="form-group">
-      <label for="email">Password</label>
-      <input type="password" class="form-control" id="password" placeholder="Enter your password" required>
-    </div>
-    <button type="submit" class="btn btn-default btn-success">
-    Login
-    </button>
-    </form>
-  </section>
-</main>
 
 <script>
   
-//   $(() => {
-//     $('form').submit((event) => {
-//       event.preventDefault();
-//       const user = getUserFromForm();
+  $(() => {
+    $('form').submit((event) => {
+      event.preventDefault();
+      const user = getUserFromForm();
 
-//       login(user)
-//         .then(result => {
-//           //console.log(result);
-//           //window.location = '/map';
-//         }).catch(error => {
-//           showErrorMessage(error.responseJSON.message);
-//         })
-//     });
-//   });
+      login(user)
+        .then(result => {
+          //console.log(result);
+          window.location = '/map';
+        }).catch(error => {
+          showErrorMessage(error.responseJSON.message);
+        })
+    });
+  });
 
-// function login(user) {
-//   return $.post(`http://localhost:4321/auth/login`, user)
-// }
+function login(user) {
+  return $.post(`http://localhost:4321/auth/login`, user)
+}
 
 
 </script>
-
 </body>
 </html>
