@@ -144,7 +144,7 @@ module.exports = {
     return knex('user').where('id', id).first();
   },
   createUser(user) {
-    return knex('user').insert(user, ['id', 'is_active']).then(ids => {
+    return knex('user').insert(user, ['id', 'email', 'password', 'admin']).then(ids => {
       console.log(ids[0]);
       return ids[0];
     })

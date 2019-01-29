@@ -5,6 +5,9 @@ const router = express.Router();
 const queries = require('../db/queries');
 // Route path are prepended with /auth
 const authMiddlewear = require('./middlewear');
+const bodyParser = require('body-parser');
+
+const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 router.get('/', (req, res) => {
   res.json({
@@ -107,7 +110,8 @@ function setUserIdCookie(req, res, id) {
   });
 }
 
-router.post('/login', (req, res, next) => {
+router.post('/login', urlencodedParser, (req, res, next) => {
+  console.log(req.body);
   if(validUser(req.body)) {
     // check to see if in db
     queries.getOneByEmail(req.body.email)
@@ -121,19 +125,20 @@ router.post('/login', (req, res, next) => {
           if(result) {
             // setting the 'set cookie' header
             setUserIdCookie(req, res, user.id);
-            res.json({
-              message: 'Logged in!'
-            });
+            // res.json({
+            //   message: 'Logged in!'
+            // });
+            res.render('../views/pages/map', {message:'admin'});
           } else {
-            next(new Error('Invalid Login'));
+            next(new Error('Invalid Login1'));
           }
         });
       } else {
-        next(new Error('Invalid Login'));
+        next(new Error('Invalid Login2'));
       }
     }); 
   } else {
-    next(new Error('Invalid Login'));
+    next(new Error('Invalid Login3'));
   }
 });
 

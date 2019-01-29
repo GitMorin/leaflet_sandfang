@@ -16,7 +16,6 @@ const auth = require('./auth/index');
 
 const authMiddlewear = require('./auth/middlewear');
 
-
 // Load view engine
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');

@@ -20,7 +20,7 @@
 <div class="container">
   <h1>Admin tabell</h1>
 
-  <div class="mt-5 auto w-75 mx-auto" id="user-table">
+  <div class="mt-5 auto w-75 mx-auto" id="new-user-table">
     <h5>Registrer ny bruker</h3>
     <table class="table table-sm">
     <thead>
@@ -33,11 +33,10 @@
       </tr>
     </thead>
     <tbody>
-
       <tr>
       <form id="new-user">
-        <td><input type="email" class="form-control" id="email" placeholder="epost" name="epost" required><td/>
-        <td><input type="password" class="form-control" placeholder="passord" name="passord" id="password" required><td/>
+        <td><input type="email" class="form-control" id="email" placeholder="epost" name="email" required><td/>
+        <td><input type="password" class="form-control" placeholder="passord" name="password" id="password" required><td/>
         <td><input type="password" class="form-control " placeholder="gjenta passord" id="confirm_password" required><div class="valid-feedback">Passord OK!</div><td/>
         <td><input class="form-control" type="checkbox" id="inlineCheckbox1" name="admin" value="option1"><td/>
         <td><button type="submit" class="btn btn-outline-light btn-sm"><i class="fas fa-plus-circle"></button></td>
@@ -96,8 +95,43 @@ function validatePassword(){
 password.onchange = validatePassword;
 confirm_password.onkeyup = validatePassword;
 
+// $('#new-user').submit(function (e) { // handle the submit event
+//   e.preventDefault();
+//   let formData = $(this).serialize();
+//   alert(formData);
+// })
 
-$('.table tbody').on('click', '.btn', function(){
+// SIGN UP
+$('#new-user').submit(function (e) { // handle the submit event
+  e.preventDefault();
+  let user = $(this).serialize();
+  signup(user)
+    .then(user => {
+      console.log(user);
+      let markup = 
+      `<tr>
+          <th scope="row">${user.id.id}</td>
+          <td>${user.id.email}</td>
+          <td>${user.id.password}</td>
+          <td>${user.id.admin}</td>
+          <td><button type="submit" class="btn btn-outline-light btn-sm"><i class="fas fa-minus-circle"></button></td>
+        </tr>`
+      $('#user-table .table tbody').append(markup)
+      $("#new-user").trigger("reset");
+      //window.location = '/map';
+    }).catch(error => {
+      console.error(error);
+      showErrorMessage(error.responseJSON.message);
+    });
+  });
+
+
+function signup(user) {
+  return $.post(`http://localhost:4321/auth/signup`, user)
+};
+
+// be more specific
+$('#user-table .table tbody').on('click', '.btn', function(){
   // get id of th
   let id = ($(this).closest('tr').find('th').text());
   //get table row

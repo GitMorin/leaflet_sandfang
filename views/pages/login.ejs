@@ -22,7 +22,8 @@
       <div class="alert alert-danger" role="alert" ><%= message %></div>
     <% } %>
     <div class="alert alert-danger" role="alert" id="errorMessage" style="display:none"></div>
-    <form class="form">
+    <!-- Is this right action address? -->
+    <form class="form" method=post" action="/auth/login">
     <div class="form-group">
       <label for="email">Email</label>
       <input type="email" class="form-control" id="email" placeholder="Enter your email" required>
@@ -40,24 +41,24 @@
 
 <script>
   
-  $(() => {
-    $('form').submit((event) => {
-      event.preventDefault();
-      const user = getUserFromForm();
+//   $(() => {
+//     $('form').submit((event) => {
+//       event.preventDefault();
+//       const user = getUserFromForm();
 
-      login(user)
-        .then(result => {
-          console.log(result);
-          window.location = '/map';
-        }).catch(error => {
-          showErrorMessage(error.responseJSON.message);
-        })
-    });
-  });
+//       login(user)
+//         .then(result => {
+//           //console.log(result);
+//           //window.location = '/map';
+//         }).catch(error => {
+//           showErrorMessage(error.responseJSON.message);
+//         })
+//     });
+//   });
 
-function login(user) {
-  return $.post(`http://localhost:4321/auth/login`, user)
-}
+// function login(user) {
+//   return $.post(`http://localhost:4321/auth/login`, user)
+// }
 
 
 </script>
