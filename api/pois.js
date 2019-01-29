@@ -170,6 +170,26 @@ router.get('/find/:id', (req, res) => {
     })
 });
 
+router.get('/tomming/:from/:to', (req, res) => {
+  // get poi id
+  queries.tommingBetween(req.params.from, req.params.to)
+  .then(function(pois) {
+    res.json(pois.rows)
+    //res.json({message:"cool stuff"});
+  })
+});
+  // select pois where id is....
+  // what if they have been deleted?
+  // need a route that dont give back geom, just text. Maybe call another function from here?
+
+// queries.getAll()
+// .then(pois => {
+//   res.json(pois.rows[0].row_to_json);
+// })
+// .catch(err => {
+//   console.error('Get all POI error', err);
+// });
+// });
 
 // Middlewear check if id is valid
 function isValidId(req, res, next) {

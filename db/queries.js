@@ -155,7 +155,11 @@ module.exports = {
   deleteUser(id){
     console.log(id);
     return knex('user').where('id', id).del();
-  }
+  },
+  // Get from tomming where date is between...
+  tommingBetween(from, to){
+    return knex.raw("select * from tomming where regdato >= ? and regdato < ?", [from, to])
+  },
   
   
 }
