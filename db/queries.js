@@ -8,9 +8,9 @@ const db = knex({
   dialect: 'postgres'
 });
 
-const allPois = "SELECT row_to_json(fc) FROM ( SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features FROM (SELECT 'Feature' As type, ST_AsGeoJSON(ST_Transform(lg.geom,4326))::json As geometry , row_to_json((SELECT l FROM (SELECT id, merkned, regdate, asset_type, kritisk_merkned, img_name) As l)) As properties FROM poi As lg   ) As f )  As fc;";
+const allPois = "SELECT row_to_json(fc) FROM ( SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features FROM (SELECT 'Feature' As type, ST_AsGeoJSON(ST_Transform(lg.geom,4326))::json As geometry , row_to_json((SELECT l FROM (SELECT id, merkned, regdate, asset_type, kritisk_merkned, img_name) As l)) As properties FROM poi As lg   ) As f )  As fc;"
 
-const getLast = "SELECT row_to_json(fc) FROM ( SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features FROM (SELECT 'Feature' As type, ST_AsGeoJSON(ST_Transform(lg.geom,4326))::json As geometry , row_to_json((SELECT l FROM (SELECT id, merkned, regdate, asset_type, kritisk_merkned, img_name) As l)) As properties FROM poi As lg order by id desc limit 1 ) As f )  As fc;";
+const getLast = "SELECT row_to_json(fc) FROM ( SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features FROM (SELECT 'Feature' As type, ST_AsGeoJSON(ST_Transform(lg.geom,4326))::json As geometry , row_to_json((SELECT l FROM (SELECT id, merkned, regdate, asset_type, kritisk_merkned, img_name) As l)) As properties FROM poi As lg order by id desc limit 1 ) As f )  As fc;"
 
 const allbbox = `SELECT row_to_json(fc) FROM ( SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features 
 FROM (SELECT 'Feature' As type,
@@ -19,9 +19,6 @@ FROM (SELECT 'Feature' As type,
        (SELECT l FROM (SELECT id, asset_type) As l)) As properties 
       FROM poi As lg where geom && ST_MakeEnvelope(?, ? ,?, ?, 4326)
         AND asset_type = ?) As f )  As fc;`
-
-
-//const getType = 
 
 module.exports = {
   getAll() {
@@ -160,6 +157,16 @@ module.exports = {
   tommingBetween(from, to){
     return knex.raw("select * from tomming where regdato >= ? and regdato < ?", [from, to])
   },
+  getManyAssets(ids){
+    n = ids.toString();
+
+    const manyPois = `SELECT row_to_json(fc) FROM ( SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features FROM (SELECT 'Feature' As type, ST_AsGeoJSON(ST_Transform(lg.geom,4326))::json As geometry , row_to_json((SELECT l FROM (SELECT id, merkned, regdate, asset_type, kritisk_merkned, img_name) As l)) As properties FROM poi As lg where id in (${n})  ) As f )  As fc`
+    console.log(n)
+
+    const sql =  knex.raw(manyPois);
+    console.log(sql.toString());
+    return sql;
+  }
   
   
 }
