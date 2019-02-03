@@ -174,17 +174,19 @@ router.get('/tomming/:from/:to', (req, res) => {
   // get poi id
   queries.tommingBetween(req.params.from, req.params.to)
   .then(function(pois) {
-    // create list of ids map function?
-    //console.log(pois.rows[0])
+//    console.log(pois.rows[0].length)
     result = pois.rows.map(function(id) {
       return id.poi_id
     })
     console.log(result)
+    console.log(pois)
     //res.json(pois.rows)
+    // if pois is empty do not accept
     return queries.getManyAssets(result)
   })
   .then(function(pois){
-      res.json(pois.rows)
+      res.json(pois.rows[0].row_to_json);
+      //res.json(pois.rows)
   })
   .catch(err => {
     console.error('Tomming between dates error', err);

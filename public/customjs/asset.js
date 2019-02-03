@@ -17,6 +17,8 @@ var Stamen_Watercolor = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/w
 // ADDING SCALE
 L.control.scale({imperial:false}).addTo(map);
 
+//let dateBetween = {}
+
 // ADDING LEGEND
 var legend = L.control({position: 'bottomright'});
 
@@ -48,8 +50,6 @@ return div;
 legend.addTo(map);
 
 
-
-
 let basemaps = L.layerGroup()
 .addLayer(OpenStreetMap_Mapnik) // default layer to show
 .addTo(map);
@@ -63,10 +63,6 @@ $(".dropdown-item.bg").click(function(event) {
   console.log(typeof(obj['bar']));
   console.log($(this).data('foo'));
   console.log(typeof(Object.keys(obj)[0]));
-
-  // var my_object = {};
-  // var prop = 'layer';
-  // my_object[prop] = selectedLayer;
 
   basemaps.clearLayers()
   basemaps.addLayer(selectedBaseLayer(selectedLayer));
@@ -124,6 +120,22 @@ function getColor(asset) {
 }
 
 // CREATE LAYERS TO BE POPULATED
+var filterTomming = new L.geoJson(null, {
+  pointToLayer: function (feature, latlng) {
+    return L.circleMarker(latlng, {
+      radius: 10,
+      fillOpacity: 0.5,
+      color: '#3388ff'
+    });
+  },
+  onEachFeature: function (feature, layer) {
+    //layer.addTo(filterTomming);
+    layer.bindTooltip(feature.properties.id + '', {
+      sticky: true,
+      direction: 'top'
+    });
+  }
+});
 var sandfang = new L.geoJson(null, {
   pointToLayer: function (feature, latlng) {
     return L.circleMarker(latlng, {
@@ -169,7 +181,6 @@ var strindasluk = new L.geoJson(null, {
   },
   onEachFeature: function (feature, layer) {
     layer.addTo(clusters);
-    //layer.bindPopup(feature.properties.place);
     layer.bindTooltip(feature.properties.id + '', {
       sticky: true,
       direction: 'top'
@@ -377,25 +388,12 @@ $('#registrert-skader-list').on('submit', '.edit-skader-form', function(e) {
   }
 });
 
-// get Sandfang, StrindaSluk, BIsluk with bbox
-// $.get({ url: '/api/pois/'})
-//   .done(function (data) {
-//     getAssets(data);
-//     sandfang.addTo(map);
-//   })
-//   .fail(function (jqXHR, status, error) {
-//     console.log('Status: ' + status + '\n' + 'Error: ' + error);
-//   });
-
-
-
 function getPoints(bbox, asset_type){
   //let asset_type = 'sandfang'
   $.get({ url: '/api/pois/type/' + asset_type + '/bbox/'+ bbox})
   .done(function (data) {
     console.log(data);
     getAssets(data);
-    //sandfang.addTo(map);
   })
   .fail(function (jqXHR, status, error) {
     console.log('Status: ' + status + '\n' + 'Error: ' + error);
@@ -761,7 +759,6 @@ map.on('move', function (e) {
   crosshair.setLatLng(map.getCenter());
 });
 
-
 // what do you do?
 function checkedFilter() {
   var filterItem = [];
@@ -770,54 +767,6 @@ function checkedFilter() {
   });
   console.log(filterItem)
 }
-
-// // Interact with checkboxes
-// $('#sandfang-checkbox').change(function() {
-//   if (this.checked) {
-//     getPoints(map.getBounds().toBBoxString(), 'sandfang');
-//   } else {
-//     clusters.clearLayers();
-//     checkedAssetBoxes()
-//     //map.removeLayer(sandfang);
-//   }
-// });
-
-// // replace this to find what chechbox that was checked
-// $('#bisluk-checkbox').change(function() {
-//   if (this.checked) {
-//     getPoints(map.getBounds().toBBoxString(), 'bisluk')
-//   } else {
-//     clusters.clearLayers();
-//     checkedAssetBoxes()
-//     //map.removeLayer(bisluk);
-//   }
-// });
-// $('#strindasluk-checkbox').change(function() {
-//   if (this.checked) {
-//     getPoints(map.getBounds().toBBoxString(), 'strindasluk')
-//   } else { 
-//     clusters.clearLayers();
-//     checkedAssetBoxes()
-//     //map.removeLayer(strindasluk);
-//   }
-// });
-// $('#allatyper-checkbox').change(function() {
-//   if (this.checked) {
-//     clusters.clearLayers();
-//     getPoints(map.getBounds().toBBoxString(), 'strindasluk')
-//     getPoints(map.getBounds().toBBoxString(), 'bisluk')
-//     getPoints(map.getBounds().toBBoxString(), 'sandfang')
-//     // map.addLayer(sandfang);
-//     // map.addLayer(bisluk);
-//     // map.addLayer(strindasluk);
-//   } else {
-//     clusters.clearLayers();
-//     checkedAssetBoxes()
-//     //map.removeLayer(sandfang);
-//     //map.removeLayer(bisluk);
-//     //map.removeLayer(strindasluk);
-//   }
-// });
 
 $('#allatyper-checkbox').on('click', function() {
   if (this.checked == true)
@@ -909,11 +858,18 @@ map.on('moveend', function() {
   if (sandfang || bisluk || strindasluk) {
     clusters.clearLayers();
   };
-  //checkedAssetBoxes();
-  notify();
+  // need a promise function here to do .bringToBack(); once the 
+  // Hack
+  getCheckedAssetBoxes();
+  setTimeout(function(){ 
+    if (filterTomming) {
+      filterTomming.bringToFront();
+    }; 
+  }, 50);
 });
 
-function notify(){
+// Controling action on filtered items
+function getCheckedAssetBoxes(){
   var els = document.querySelectorAll('.asset-checkbox:checked');
   clusters.clearLayers();
   for(var i = 0; i< els.length; i++){
@@ -922,42 +878,7 @@ function notify(){
 }
 
 $('.asset-checkbox').change(function() {
-  notify();
-});
-
-// $('#bisluk-checkbox').change(function() {
-//   if (this.checked) {
-//     getPoints(map.getBounds().toBBoxString(), 'bisluk')
-//   } else {
-//     clusters.clearLayers();
-//     checkedAssetBoxes()
-//     //map.removeLayer(bisluk);
-//   }
-
-// function checkedAssetBoxes() {
-//   if (document.getElementById('sandfang-checkbox').checked) {
-//     getPoints(map.getBounds().toBBoxString(), 'sandfang');
-//   };
-//   if (document.getElementById('strindasluk-checkbox').checked) {
-//     getPoints(map.getBounds().toBBoxString(), 'strindasluk');
-//   };
-//   if (document.getElementById('bisluk-checkbox').checked) {
-//     getPoints(map.getBounds().toBBoxString(), 'bisluk');
-//   };
-//   if (document.getElementById('allatyper-checkbox').checked) {
-//     clusters.clearLayers();
-//     getPoints(map.getBounds().toBBoxString(), 'sandfang');
-//     getPoints(map.getBounds().toBBoxString(), 'bisluk');
-//     getPoints(map.getBounds().toBBoxString(), 'strindasluk');
-//   };
-// }
-
-$(function() {
-  $('input[name="daterange"]').daterangepicker({
-    opens: 'left'
-  }, function(start, end, label) {
-    console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
-  });
+  getCheckedAssetBoxes();
 });
 
 L.control.locate({icon: 'fas fa-map-marker-alt', enableHighAccuracy: true}).addTo(map);
@@ -976,3 +897,47 @@ function logout() {
 $('#log-ut').click(function () {
   logout();
 })
+
+
+// Date picker function
+$(function () {
+  $('input[name="daterange"]').daterangepicker({
+    opens: 'down',
+    drops: 'down',
+    endDate: moment().startOf('day'),
+    startDate: moment().startOf('hour').subtract(5, 'day'),
+    locale: {
+      format: 'YYYY/MM/DD'
+    }
+  }, function (start, end, label) {
+    console.log("A new date selection was made: " + start.format('YYYY-MM-DD HH:mm') + ' to ' + end.format('YYYY-MM-DD HH:mm'));
+    let from = start.format('YYYY-MM-DD');
+    let to = end.format('YYYY-MM-DD HH:mm');
+    $("#tommingFilter-checkbox").prop( "checked", true );
+    return getTommingBetween(from, to);
+  });
+});
+
+function getTommingBetween(from, to) {
+  filterTomming.clearLayers();
+  $.get({
+    url: '/api/pois/tomming/' + from + '/' + to
+  })
+  .done(function (data) {
+    $(data.features).each(function (key, data) {
+      filterTomming.addData(data);
+      filterTomming.addTo(map);
+    });
+  })
+  // .catch(function (error) {
+  //   alert(error);
+  // });
+}
+
+$('#tommingFilter-checkbox').change(function() {
+  if (this.checked) {
+    filterTomming.addTo(map);
+  } else {
+    map.removeLayer(filterTomming);
+  }
+});
