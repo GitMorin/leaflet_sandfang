@@ -17,7 +17,17 @@ var Stamen_Watercolor = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/w
 // ADDING SCALE
 L.control.scale({imperial:false}).addTo(map);
 
-//let dateBetween = {}
+let assetLinkActive = false;
+let linkAssetId
+
+// Activate assetLink function and set AssetLink to true from modal
+// if True save clicked asset in linkAssetId
+// open modal again with the value filled
+// on submit save the value to a new table 
+// need edit route too
+// need "show assetLinks" - will display all accosiated assets to a sandfang (only available for Sandfang)
+// Button will show on top of the page ("Showing linked bisluk to Sandfang id xxx") - on click clear layer
+// set current sandfang to another icon to make it clear
 
 // ADDING LEGEND
 var legend = L.control({position: 'bottomright'});
@@ -123,9 +133,9 @@ function getColor(asset) {
 var filterTomming = new L.geoJson(null, {
   pointToLayer: function (feature, latlng) {
     return L.circleMarker(latlng, {
-      radius: 10,
+      radius: 12,
       fillOpacity: 0.5,
-      color: '#3388ff'
+      color: '#24211f'
     });
   },
   onEachFeature: function (feature, layer) {
@@ -924,6 +934,9 @@ function getTommingBetween(from, to) {
     url: '/api/pois/tomming/' + from + '/' + to
   })
   .done(function (data) {
+    if (data.message) {
+      alert(data.message);
+    }
     $(data.features).each(function (key, data) {
       filterTomming.addData(data);
       filterTomming.addTo(map);
