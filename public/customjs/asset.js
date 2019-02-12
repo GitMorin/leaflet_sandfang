@@ -202,14 +202,14 @@ sandfang.on('click', markerOnClick);
 bisluk.on('click', markerOnClick);
 strindasluk.on('click', markerOnClick);
 
-function markerOnClick(e) {
-  current_id = e.layer.feature.properties.id;
-  console.log('clicked feature')
-  //merkned = e.layer.feature.properties.merkned;
-  //kritisk_merkned = e.layer.feature.properties.kritisk_merkned;
-  //console.log(current_id,kritisk_merkned,merkned)
-  showInfo(current_id, e.layer.feature);
-};
+// function markerOnClick(e) {
+//   current_id = e.layer.feature.properties.id;
+//   console.log('clicked feature')
+//   //merkned = e.layer.feature.properties.merkned;
+//   //kritisk_merkned = e.layer.feature.properties.kritisk_merkned;
+//   //console.log(current_id,kritisk_merkned,merkned)
+//   showInfo(current_id, e.layer.feature);
+// };
 
 var tempIcon = L.icon({
   iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
@@ -953,4 +953,93 @@ $('#tommingFilter-checkbox').change(function() {
   } else {
     map.removeLayer(filterTomming);
   }
+});
+
+// Associate points
+let idOfAssociatePoint;
+let bindPoint = false;
+
+$("#bind-point").click(function(e){
+$("#bind-point").toggleClass("active");
+if ($("#bind-point").hasClass("active")) {
+  $("#bind-point span").text(" On");
+} else {
+  $("#bind-point span").text(" Off");
+}
+});  
+
+// function markerOnClick(e) {
+//   if (!$("#bind-point").hasClass("active")){
+//     current_id = e.layer.feature.properties.id;
+//     showInfo(current_id, e.layer.feature);
+  
+//   } else {
+//     //idOfAssociatePoint = null;
+//     idOfAssociatePoint = e.layer.feature.properties.id;
+//     console.log(`Associate point ${idOfAssociatePoint} with ${current_id} In the database`);
+//   }
+//   };
+let clickedPoint = null;
+if (clickedPoint){
+  clickedPoint.addTo(map);
+}
+
+console.log(clickedPoint)
+
+function markerOnClick(e) {
+  console.log(e);
+  clickedPoint = e.layer.setStyle({fillColor: '#0fbff2'}).addTo(map);
+  // add to new layer to persist?
+  // get xy of current layer
+  // draw line between current and clicked
+  console.log(clickedPoint);
+  if (bindPoint === false) {
+    current_id = e.layer.feature.properties.id;
+    showInfo(current_id, e.layer.feature);
+
+  } else {
+    //idOfAssociatePoint = null;
+    idOfAssociatePoint = e.layer.feature.properties.id;
+    console.log(`Associate point ${idOfAssociatePoint} with ${current_id} In the database`);
+    $('#bind-point-id-val').val(idOfAssociatePoint);
+  }
+};
+
+$("#bind-point-edit").click(function(e){
+  // set 
+  console.log("Close modal");
+  $("#bind-point-panel").show();
+  $('#infoModal').modal('hide')
+  bindPoint = true;
+  // reopen modal on save?
+  // press tick mark and it will save it to the database.
+  // only if value is set!
+  // when hover over highlight it on the map
+  // If delete display message
+});
+
+$("#button-save-accociate").click(function(e){
+  if(!$('#bind-point-id-val').val()){
+    // Do Nothing.. alert("Inget verdi!");
+  } else {
+    if (confirm(`vil du koble ${idOfAssociatePoint} med ${current_id}?`)) {
+      console.log("Lagre");
+      bindPoint = false;
+      $("#bind-point-panel").hide();
+      // remove infopanel
+      $('#bind-point-id-val').val("");
+    } else {
+      console.log("Cancel");
+      bindPoint = false;
+      $("#bind-point-panel").hide();
+      // remove infopanel
+      $('#bind-point-id-val').val("");
+    }
+  }
+});
+
+$("#bind-point-btn-avbryt").click(function(e){
+  $("#bind-point-panel").hide();
+  bindPoint = false;
+  $('#bind-point-id-val').val("");
 });

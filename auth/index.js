@@ -10,7 +10,7 @@ const bodyParser = require('body-parser');
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 router.get('/login', function (req, res) {
-  res.render('../views/pages/login');
+  res.render('../views/pages/login'); // Use the admin example to if that work. If user is not admin or whatever dont show admin href
 });
 
 router.get('/signup', authMiddlewear.ensureLoggedIn, authMiddlewear.isAdmin, function (req, res) {
@@ -25,7 +25,7 @@ router.get('/logut', function (req, res) {
 router.get('/admin', authMiddlewear.ensureLoggedIn, authMiddlewear.isAdmin, function (req, res) {
   queries.getAllUserrs().then(users => {
     console.log(users);
-    res.render('../views/pages/admin', {users:users});
+    res.render('../views/pages/admin', {users:users}); // check if this is passed properly. Think this need to be passed from middlewear
   });
 });
 
@@ -57,6 +57,7 @@ function validUser(user) {
   return validEmail && validPassword;
 }
 
+// New user
 router.post('/signup', (req, res, next) => {
   if(validUser(req.body)) {
     queries
@@ -65,7 +66,7 @@ router.post('/signup', (req, res, next) => {
         // if user not found
         console.log('user',user);
         if(!user){
-          // this is a unique email
+          // if no user was found
           // hash password
           bcrypt.hash(req.body.password, 8)
             .then((hash) => {
@@ -122,7 +123,9 @@ router.post('/login', urlencodedParser, (req, res, next) => {
             // res.json({
             //   message: 'Logged in!'
             // });
-            res.render('../views/pages/map', {message:'admin'}); // Tror admin kan tas bort
+            res.render("'../views/pages/map', {message:'admin'}"); // Tror admin kan tas bort
+            //res.render("login', { title: 'Login"});
+
           } else {
             next(new Error('Feil passord'));
           }

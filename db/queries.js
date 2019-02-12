@@ -161,10 +161,10 @@ module.exports = {
     n = ids.toString();
 
     const manyPois = `SELECT row_to_json(fc) FROM ( SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features FROM (SELECT 'Feature' As type, ST_AsGeoJSON(ST_Transform(lg.geom,4326))::json As geometry , row_to_json((SELECT l FROM (SELECT id, merkned, regdate, asset_type, kritisk_merkned, img_name) As l)) As properties FROM poi As lg where id in (${n})  ) As f )  As fc`
-    console.log(n)
+    //console.log(n)
 
     const sql =  knex.raw(manyPois);
-    console.log(sql.toString());
+    //console.log(sql.toString());
     return sql;
   }
   

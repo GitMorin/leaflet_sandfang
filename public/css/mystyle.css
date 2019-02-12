@@ -33,8 +33,9 @@ font-weight: bold;
 
 #sandfangInfoList {
 list-style-type: none;
-width: 90%;
-margin: 0 auto;
+margin-bottom: 0.3rem;
+/* width: 90%;
+margin: 0 auto; */
 }
 
 .sandfangLi {
@@ -185,12 +186,6 @@ select{
 /* Modal content behavior here */
 #editSandfangInfo {
 display: none;
-}
-
-/* center Tømming button */
-.center-btn {
-text-align: center;
-margin-top: 15px;
 }
 
 /* CHECKBOXES IN NAV */
@@ -354,4 +349,63 @@ label span.label-text {
 
 #search-field {
   width: 75px;
+}
+
+#bind-point {
+  position: absolute;
+  margin-top: 25px;
+  z-index: 1000;
+  margin-left: 50%;
+}
+
+/* #associate-point-info {
+  position: absolute;
+  margin-top: 25px;
+  z-index: 1000;
+  width: 120px;
+  right: 25px;
+} */
+
+#bind-point-panel {
+  display: none;
+  position: absolute;
+  padding: 5px;
+  background-color: rgba(255,255,255,0.8);
+  margin-top: 25px;
+  z-index: 1000;
+  width: 140px;
+  right: 25px;
+  /* height: 80px; */
+  border-radius: 10px;
+}
+
+#button-save-accociate {
+  background-color: #0000004f;
+  color:#1df51d ;
+}
+
+#button-save-accociate:hover {
+  /* background-color: #0000002e; */
+  background-color: #2acc0f;
+  color: black;
+}
+
+.button-associate-point-edit {
+  color: red;
+  /* background-color: red; */
+}
+
+.button-associate-point-edit:hover {
+  background-color: red;
+  color: black;
+  /* background-color: red; */
+}
+
+.helper-text-bind-point{
+  line-height: normal;
+}
+
+#bind-point-btn-avbryt{
+  border-color: #737c83;
+  border-width: 1px;
 }

@@ -26,9 +26,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser('keyboard_cat'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/scripts', express.static(__dirname + '/node_modules/leaflet.locatecontrol/dist/'));
-// app.use(cors({
-//   credentials: true
-// }));
 
 app.use('/auth', auth)
 app.use('/api/pois', pois);
