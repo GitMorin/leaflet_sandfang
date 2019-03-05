@@ -156,6 +156,7 @@ var sandfang = new L.geoJson(null, {
   },
   onEachFeature: function (feature, layer) {
     layer.addTo(clusters);
+    //return bindPopup(feature.properties.id);
     //layer.bindPopup(feature.properties.place);
     layer.bindTooltip(feature.properties.id + '', {
       sticky: true,
@@ -229,11 +230,6 @@ function isValidDate(d) {
 // get feature of layer to be used to fill modal!
 // THIS WORKS but should probably be refactored...
 function showInfo(current_id, layer) {
-  console.log(layer)
-  // Make ajax call to populate lists
-  //current_id = e.layer.feature.properties.id;
-
-  // get tomming
   let url = '/api/pois/tomming/' + current_id;
   $.get({
       url: url
@@ -402,7 +398,6 @@ function getPoints(bbox, asset_type){
   //let asset_type = 'sandfang'
   $.get({ url: '/api/pois/type/' + asset_type + '/bbox/'+ bbox})
   .done(function (data) {
-    console.log(data);
     getAssets(data);
   })
   .fail(function (jqXHR, status, error) {
@@ -417,7 +412,8 @@ $('#newPoiForm').submit(function (e) { // handle the submit event
   let formData = $(this).serialize();
   // post new asset and add the latest point on the map
 
-  $.post({type: 'POST', url: '/api/pois/', data: formData}).then(function(data){
+  $.post({type: 'POST', url: '/api/pois/', data: formData})
+  .then(function(data){
     console.log('New asset submitted');
     return $.get({url: '/api/pois/last'});
   }).then(function(data, textStatus, xhr) {
@@ -957,7 +953,7 @@ $('#tommingFilter-checkbox').change(function() {
 
 // Associate points
 let idOfAssociatePoint;
-let bindPoint = false;
+let bindPointActive = false;
 
 $("#bind-point").click(function(e){
 $("#bind-point").toggleClass("active");
@@ -968,37 +964,42 @@ if ($("#bind-point").hasClass("active")) {
 }
 });  
 
-// function markerOnClick(e) {
-//   if (!$("#bind-point").hasClass("active")){
-//     current_id = e.layer.feature.properties.id;
-//     showInfo(current_id, e.layer.feature);
-  
-//   } else {
-//     //idOfAssociatePoint = null;
-//     idOfAssociatePoint = e.layer.feature.properties.id;
-//     console.log(`Associate point ${idOfAssociatePoint} with ${current_id} In the database`);
-//   }
-//   };
-let clickedPoint = null;
-if (clickedPoint){
-  clickedPoint.addTo(map);
-}
+// let clickedPoint = null;
+// if (clickedPoint){ 
+//   clickedPoint.addTo(map);
+// }
 
-console.log(clickedPoint)
+//console.log(clickedPoint)
+
+let firstMarker;
+let secondMarker;
+let polyline;
+linecoords = [[0,0][0,0]];
 
 function markerOnClick(e) {
-  console.log(e);
-  clickedPoint = e.layer.setStyle({fillColor: '#0fbff2'}).addTo(map);
-  // add to new layer to persist?
-  // get xy of current layer
-  // draw line between current and clicked
-  console.log(clickedPoint);
-  if (bindPoint === false) {
+ //e.layer.setStyle({fillColor: '#0fbff2'}).addTo(map); // change fill color of clicked point
+  latlngOfLastClickedMarker = e.layer.getLatLng(); // variable for holding latlng object of last clicked layer
+  
+  if (bindPointActive === false) { // Show info if bind point is not active
     current_id = e.layer.feature.properties.id;
     showInfo(current_id, e.layer.feature);
+  } else { // Bind point is active
+    // If secondMarker marker alrady assigned remove it so it can be replaced
+    if (secondMarker) {
+      map.removeLayer(secondMarker);
+    }
+    secondMarker =  L.marker(e.layer.getLatLng()).addTo(map); // Add seconds marker to layer
+    linecoords[1] = [e.layer.getLatLng().lat, e.layer.getLatLng().lng]; // Set second coordinate pair of line
+    // Add/update the lines between points
+    if (map.hasLayer(polyline) === false) {
+      polyline = new L.polyline(linecoords, {color: 'blue'}).addTo(map);
+      console.log("no layer")
+    } else {
+      map.removeLayer(polyline);
+      polyline = new L.polyline(linecoords, {color: 'blue'}).addTo(map);
+      console.log("has layer")
+    }    
 
-  } else {
-    //idOfAssociatePoint = null;
     idOfAssociatePoint = e.layer.feature.properties.id;
     console.log(`Associate point ${idOfAssociatePoint} with ${current_id} In the database`);
     $('#bind-point-id-val').val(idOfAssociatePoint);
@@ -1006,11 +1007,12 @@ function markerOnClick(e) {
 };
 
 $("#bind-point-edit").click(function(e){
-  // set 
-  console.log("Close modal");
+  // Make marker on first click
+  firstMarker = L.marker(latlngOfLastClickedMarker).addTo(map);
+  linecoords[0] = [latlngOfLastClickedMarker.lat, latlngOfLastClickedMarker.lng];
   $("#bind-point-panel").show();
   $('#infoModal').modal('hide')
-  bindPoint = true;
+  bindPointActive = true;
   // reopen modal on save?
   // press tick mark and it will save it to the database.
   // only if value is set!
@@ -1024,13 +1026,16 @@ $("#button-save-accociate").click(function(e){
   } else {
     if (confirm(`vil du koble ${idOfAssociatePoint} med ${current_id}?`)) {
       console.log("Lagre");
-      bindPoint = false;
+
+      // lagre til DB
+
+      bindPointActive = false;
       $("#bind-point-panel").hide();
       // remove infopanel
       $('#bind-point-id-val').val("");
     } else {
       console.log("Cancel");
-      bindPoint = false;
+      bindPointActive = false;
       $("#bind-point-panel").hide();
       // remove infopanel
       $('#bind-point-id-val').val("");
@@ -1040,6 +1045,6 @@ $("#button-save-accociate").click(function(e){
 
 $("#bind-point-btn-avbryt").click(function(e){
   $("#bind-point-panel").hide();
-  bindPoint = false;
+  bindPointActive = false;
   $('#bind-point-id-val').val("");
 });

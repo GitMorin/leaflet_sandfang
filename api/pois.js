@@ -194,9 +194,6 @@ router.get('/tomming/:from/:to', (req, res) => {
     console.error(err);
   });
 });
-  // select pois where id is....
-  // what if they have been deleted?
-  // need a route that dont give back geom, just text. Maybe call another function from here?
 
 
 // Middlewear check if id is valid
