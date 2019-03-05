@@ -195,6 +195,19 @@ router.get('/tomming/:from/:to', (req, res) => {
   });
 });
 
+// post new tomming
+router.post('/kobling', (req, res) => {
+  //console.log(req.body)
+  queries.createAssociation(req.body)
+  .then(kobling => {
+    res.json(kobling);
+    //console.log(kobling);
+  })
+  .catch(function (err) {
+    console.error('get kobling error ' + err);
+  });
+});
+
 
 // Middlewear check if id is valid
 function isValidId(req, res, next) {

@@ -166,7 +166,12 @@ module.exports = {
     const sql =  knex.raw(manyPois);
     //console.log(sql.toString());
     return sql;
-  }
+  },
+  createAssociation(kobling_punkt) {
+    const sql = db.insert(kobling_punkt).returning('*').into('kobling_punkt');
+    console.log(sql.toString());
+    return sql;
+  },
   
   
 }

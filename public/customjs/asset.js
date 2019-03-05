@@ -1027,7 +1027,10 @@ $("#button-save-accociate").click(function(e){
     if (confirm(`vil du koble ${idOfAssociatePoint} med ${current_id}?`)) {
       console.log("Lagre");
 
-      // lagre til DB
+      data = {}
+      data.poi_id = current_id
+      data.til_poi_id = idOfAssociatePoint
+      postKoblingData(data);
 
       bindPointActive = false;
       $("#bind-point-panel").hide();
@@ -1048,3 +1051,27 @@ $("#bind-point-btn-avbryt").click(function(e){
   bindPointActive = false;
   $('#bind-point-id-val').val("");
 });
+
+function postKoblingData(data){
+  fetch('/api/pois/kobling', {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  }).then(function(res) {
+    if (secondMarker) {
+      map.removeLayer(secondMarker);
+    }
+    if (firstMarker) {
+      map.removeLayer(firstMarker);
+    }
+    if (polyline) {
+      map.removeLayer(polyline);
+    }
+    //console.log(res)        
+  }).catch(function(err) {
+    console.log("error", err)
+  });
+}
