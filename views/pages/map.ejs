@@ -13,7 +13,6 @@
     <!-- <div style="position: relative; z-index: 9999; padding-left: 50%;padding-right: 10px; display: none;">
       <input type="button" id="btnComplete" value="Opret Rute" onclick="createRoute()" class="btnStyle span3" />
 </div> -->
-    <button id="bind-point" class="">Associate point<span> Off</span></button>
     <div id="bind-point-panel" class="">
       <div class="text-left mt-2 p-0" class="helper-text-bind-point">Bind ny punkt</div>
       <div class="input-group text-right" id="associate-point-info">
@@ -22,26 +21,31 @@
           <button class="btn btn-outline-secondary btn-sm" type="button" id="button-save-accociate"><i class="fas fa-check"></i></button>
         </div>
         <div class="text-left mt-2 p-0" class="helper-text-bind-point">Fjern registrert punkt</div>
-        <div class="input-group text-right mb-0">
-          <input type="text" class="form-control" placeholder="Id">
-          <div class="input-group-append">
-            <button class="btn btn-outline-secondary btn-sm button-associate-point-edit" type="button""><i class="fas fa-times-circle"></i></button>
+
+        <div id="registered-points">
+          <!-- <div class="input-group text-right mb-0">
+            <input type="text" class="form-control" placeholder="Id">
+            <div class="input-group-append">
+              <button class="btn btn-outline-secondary btn-sm button-associate-point-edit" type="button""><i class=" fas
+                fa-times-circle"></i></button>
+            </div>
           </div>
-        </div>
-        <div class="input-group text-right mb-0">
-          <input type="text" class="form-control" placeholder="Id">
-          <div class="input-group-append">
-            <button class="btn btn-outline-secondary btn-sm button-associate-point-edit" type="button"><i class="fas fa-times-circle"></i></button>
+          <div class="input-group text-right mb-0">
+            <input type="text" class="form-control" placeholder="Id">
+            <div class="input-group-append">
+              <button class="btn btn-outline-secondary btn-sm button-associate-point-edit" type="button"><i class="fas fa-times-circle"></i></button>
+            </div>
           </div>
+          <div class="input-group text-right mb-0">
+            <input type="text" class="form-control" placeholder="Id">
+            <div class="input-group-append">
+              <button class="btn btn-outline-secondary btn-sm button-associate-point-edit" type="button"><i class="fas fa-times-circle"></i></button>
+            </div>
+          </div> -->
         </div>
-        <div class="input-group text-right mb-0">
-          <input type="text" class="form-control" placeholder="Id">
-          <div class="input-group-append">
-            <button class="btn btn-outline-secondary btn-sm button-associate-point-edit" type="button"><i class="fas fa-times-circle"></i></button>
-          </div>
-        </div>
+
       </div>
-      <button type="button" class="btn-block btn-outline-dark btn-sm mt-1" id="bind-point-btn-avbryt">Avbryt</button>
+      <button type="button" class="btn-block btn-outline-dark btn-sm mt-1" id="bind-point-btn-avbryt">Tilbake</button>
     </div>
 
     <!--<footer>

@@ -65,7 +65,7 @@ router.get('/tomming/:id', (req, res) => {
 
 router.post('/skade', (req, res) => 
 { 
-  console.log('im in route now');
+  //console.log('im in route now');
   damages = req.body.skade_type;
   poi_id = req.body.poi_id;
   let data = [];
@@ -200,14 +200,81 @@ router.post('/kobling', (req, res) => {
   //console.log(req.body)
   queries.createAssociation(req.body)
   .then(kobling => {
-    res.json(kobling);
     //console.log(kobling);
+    res.json(kobling);
   })
   .catch(function (err) {
     console.error('get kobling error ' + err);
   });
 });
 
+router.get('/kobling/:id', (req, res) => {
+  // uggly uggly code below!
+  queries.getConnectionsById(req.params.id)  // return list of objects
+  .then(data => {
+    if (!data.length > 0) {
+      res.json({message: "Ingen kobling ennå registrert til punktet"});
+    } else {
+      let listOfIds = []
+      let objtest = {}
+
+      data.forEach(el =>{ // create list with objects of { uuid: 25, id: 451 }
+        let uuidObj = {}
+        uuidObj["uuid"] = el.id;
+        uuidObj["id"] = el.til_poi_id;
+        listOfIds.push(uuidObj);
+      })
+      result = data.map(function(id) { // return list of ids [ 451, 317, 504 ]
+        return id.til_poi_id
+      })
+      console.log(listOfIds);
+      return queries.getLatLngOfAsset(result)
+      .then(data => {
+        const newList = []
+        data.rows.map(function(el){  // Create list that put the coords into a list coords: [ 63.4325301346224, 10.3742694854736 ]
+          let newObj = {}
+          coords = el.st_astext.substring(6, el.st_astext.length -1).split(' ');
+          var coords = coords.map(function (x) { // parse string to float
+            return parseFloat(x); 
+          });
+          newObj["id"] = el.id;
+          newObj["coords"] = coords.reverse();
+          newList.push(newObj)
+          return
+        })
+        // https://stackoverflow.com/questions/19480008/javascript-merging-objects-by-id
+        const mergeArray = (source, merge, by) => source.map(item => ({
+          ...item,
+          ...(merge.find(i => i[by] === item[by]) || {}),
+        }));
+        let combinedLists = (mergeArray(newList, listOfIds, 'id'));
+        console.log(combinedLists);
+
+        res.json(combinedLists)
+        //console.log(data.rows)
+      })
+      .catch(err => {
+        console.error('Something went wrong in getLatLngOfAsset', err);
+      });
+    }
+  })
+  .catch(function (err) {
+    console.error('get kobling error ' + err);
+  });
+});
+
+// Delete route
+router.delete('/kobling/:id', (req, res) => {
+  queries.kobling_punkt(req.params.id)
+  .then(() => {
+    res.json({
+      deleted: true,
+    });
+  })
+  .catch(err => {
+    console.error('Delete poi error', err);
+  });
+});
 
 // Middlewear check if id is valid
 function isValidId(req, res, next) {

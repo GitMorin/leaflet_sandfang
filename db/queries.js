@@ -99,31 +99,6 @@ module.exports = {
     //console.log(sql.toString());
     return sql;
   },
- //SELECT * FROM poi WHERE cast(id as TEXT) like '%15%' limit 5
- //.where('column', 'ilike', 'XXXX%')
-  // findId(id) {
-  //   typeof(id);
-  //   console.log(typeof(parseInt(id)));
-  //   //const sql = knex.raw("select * from poi WHERE cast(id as TEXT) like '%5%' limit(5)")
-  //   const sql = knex.raw("select id from poi WHERE cast(id as TEXT) like '%'||?||'%' order by id asc limit(1)", [parseInt(id)]);
-  //   //knex('users').whereRaw('id = ?', [1])
-  //   console.log(sql.toString());
-  //   return sql;
-  // }
-
-
-  // findId(id) {
-  //   typeof(id);
-  //   console.log(typeof(parseInt(id)));
-  //   //const sql = knex.raw("select * from poi WHERE cast(id as TEXT) like '%5%' limit(5)")
-  //   // SELECT ST_AsGeoJSON(geom, 3) FROM public.poi where id = 55
-  //   const sql = knex.raw(getLast);
-  //   //knex('users').whereRaw('id = ?', [1])
-  //   console.log(sql.toString());
-  //   return sql;
-  // }
-
-
   findId(id) {
     typeof(id);
     console.log(typeof(parseInt(id)));
@@ -171,6 +146,21 @@ module.exports = {
     const sql = db.insert(kobling_punkt).returning('*').into('kobling_punkt');
     console.log(sql.toString());
     return sql;
+  },
+  getConnectionsById(poi_id) {
+    const sql = knex('kobling_punkt').where('poi_id', poi_id);
+    console.log(sql.toString());
+    return sql;
+  },
+  getLatLngOfAsset(listOfIds) {
+    n = listOfIds.toString();
+    //const sql = knex.raw("Select id, ST_AsText(geom) from poi where id= ?", [id] )
+    const sql = knex.raw(`Select id, ST_AsText(geom) from poi where id in (${n})`)
+    console.log(sql.toString())
+    return sql
+  },
+  kobling_punkt(uuid) {
+    return knex('kobling_punkt').where('id', uuid).del();
   },
   
   

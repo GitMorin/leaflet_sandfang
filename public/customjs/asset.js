@@ -307,7 +307,7 @@ function showInfo(current_id, layer) {
   })
   .done(function(data){
     console.log(current_id);
-    console.log('appending ' + data.merkned);
+    //console.log('appending ' + data.merkned);
     $(".featureType").append(data.asset_type);
     $(".featureId").append(current_id);
     $(".object-info").text(data.asset_type);
@@ -713,6 +713,7 @@ $('#lagreObject').click(function () {
 // remove tempMarker when selectObject modal close
 $('#confirm-object').on('hide.bs.modal', function (e) {
   if (tempMarker != undefined) {
+    console.log("removing temp marker");
     map.removeLayer(tempMarker);
   };
 });
@@ -821,7 +822,7 @@ $('#search-id').submit(function (e) { // handle the submit event
     })
     .done(function (data) {
       if(data === undefined || data.length == 0){
-        alert('record does not exist in db');
+        alert('Inget objekt med den id');
       } else {
         console.log(data[0].id);
         let myStyle = ({
@@ -974,13 +975,15 @@ if ($("#bind-point").hasClass("active")) {
 let firstMarker;
 let secondMarker;
 let polyline;
+let coordsOfCurrentMarker;
 linecoords = [[0,0][0,0]];
 
 function markerOnClick(e) {
- //e.layer.setStyle({fillColor: '#0fbff2'}).addTo(map); // change fill color of clicked point
   latlngOfLastClickedMarker = e.layer.getLatLng(); // variable for holding latlng object of last clicked layer
-  
+  coordsOfCurrentMarker = e.layer.getLatLng();
   if (bindPointActive === false) { // Show info if bind point is not active
+    $('#registered-points').empty(); // Clear registered-points list
+    connections.clearLayers(); // Clear featureGroup connections from map
     current_id = e.layer.feature.properties.id;
     showInfo(current_id, e.layer.feature);
   } else { // Bind point is active
@@ -991,10 +994,10 @@ function markerOnClick(e) {
     secondMarker =  L.marker(e.layer.getLatLng()).addTo(map); // Add seconds marker to layer
     linecoords[1] = [e.layer.getLatLng().lat, e.layer.getLatLng().lng]; // Set second coordinate pair of line
     // Add/update the lines between points
-    if (map.hasLayer(polyline) === false) {
+    if (map.hasLayer(polyline) === false) { // If polyline not in map add new line
       polyline = new L.polyline(linecoords, {color: 'blue'}).addTo(map);
       console.log("no layer")
-    } else {
+    } else { // if polyline exist remove and create new
       map.removeLayer(polyline);
       polyline = new L.polyline(linecoords, {color: 'blue'}).addTo(map);
       console.log("has layer")
@@ -1006,51 +1009,119 @@ function markerOnClick(e) {
   }
 };
 
-$("#bind-point-edit").click(function(e){
-  // Make marker on first click
-  firstMarker = L.marker(latlngOfLastClickedMarker).addTo(map);
-  linecoords[0] = [latlngOfLastClickedMarker.lat, latlngOfLastClickedMarker.lng];
+function handleBindPointButtonClick(){
+  $("#bind-point-id-val").val(""); // Empty value
+  showConnectedlines(current_id)  // populate bind point panel and show connections
+  firstMarker = L.marker(latlngOfLastClickedMarker).addTo(map); // Make marker on first click
+  linecoords[0] = [latlngOfLastClickedMarker.lat, latlngOfLastClickedMarker.lng]; // append with last clicked coords
   $("#bind-point-panel").show();
   $('#infoModal').modal('hide')
   bindPointActive = true;
-  // reopen modal on save?
-  // press tick mark and it will save it to the database.
-  // only if value is set!
-  // when hover over highlight it on the map
-  // If delete display message
+};
+
+$("#bind-point-edit").click(function(e){
+  handleBindPointButtonClick();
 });
 
+// Show connecting lines between clicked point and other assets
+$("#vis-knyttet-punkt").click(function(e){
+  showConnectedlines(current_id);
+})
+
 $("#button-save-accociate").click(function(e){
+  handleSaveAccociatedPoint();
+});
+
+$(document).on('click', "button.btn.btn-outline-secondary.btn-sm.button-associate-point-edit", function() {
+  handleDeleteAccociatePoint(this.id);
+})
+
+$("#bind-point-btn-avbryt").click(function(e){
+  handleBindPointTilbakeButton();
+});
+
+// Create empty FeatureGroup
+let connections = L.featureGroup();
+
+function showConnectedlines(id) {
+  fetch('/api/pois/kobling/' + id)
+  .then(function(res) { 
+    return res.json()
+  })
+  .then(function(data) {
+    if (!data.message) {
+      data.forEach(el => {
+        //console.log(el.coords)
+        // make line coords
+        linecoords[0] = [coordsOfCurrentMarker.lat, coordsOfCurrentMarker.lng];
+        linecoords[1] = el.coords;
+        //console.log(linecoords)
+        let polyline = new L.polyline(linecoords, 
+          {color: 'blue'}).bindPopup(`Kobling til <strong>${el.id}</strong>`);
+        connections.addLayer(polyline)
+        $('#infoModal').modal('hide')
+        // Populate bind-point-panel with existing connections to point
+        
+        let htmlContent = `
+        <div class="input-group text-right mb-0">
+          <input type="text" class="form-control connections" placeholder="Id" value="${el.id}" readonly>
+            <div class="input-group-append">
+              <button id="${el.uuid}" class="btn btn-outline-secondary btn-sm button-associate-point-edit" type="button"><i class="fas fa-times-circle"></i></button>
+            </div>
+        </div>`
+  
+        $("#registered-points").append(htmlContent);
+      })
+      connections.addTo(map)
+    } else {
+      alert(data.message);
+    }
+  })
+};
+
+function handleSaveAccociatedPoint() {
   if(!$('#bind-point-id-val').val()){
-    // Do Nothing.. alert("Inget verdi!");
+    alert("Ingen punkt er valgt")
   } else {
     if (confirm(`vil du koble ${idOfAssociatePoint} med ${current_id}?`)) {
-      console.log("Lagre");
-
       data = {}
       data.poi_id = current_id
       data.til_poi_id = idOfAssociatePoint
       postKoblingData(data);
-
       bindPointActive = false;
-      $("#bind-point-panel").hide();
-      // remove infopanel
-      $('#bind-point-id-val').val("");
+      $("#bind-point-panel").hide(); // remove infopanel
+      $('#bind-point-id-val').val(""); // reset value
+      connections.clearLayers(); // Remove connection lines from map
+      if (secondMarker) {
+        map.removeLayer(secondMarker);
+      }
+      if (firstMarker) {
+        map.removeLayer(firstMarker);
+      }
+      if (polyline) { // Remove temp polyline when editing connection
+        map.removeLayer(polyline);
+      }
     } else {
       console.log("Cancel");
-      bindPointActive = false;
-      $("#bind-point-panel").hide();
-      // remove infopanel
-      $('#bind-point-id-val').val("");
+      $('#bind-point-id-val').val(""); // reset value
     }
   }
-});
+}
 
-$("#bind-point-btn-avbryt").click(function(e){
+function handleBindPointTilbakeButton() {
   $("#bind-point-panel").hide();
-  bindPointActive = false;
-  $('#bind-point-id-val').val("");
-});
+  bindPointActive = false; // disable bind connection
+  connections.clearLayers(); // Remove connection lines from map
+  if (polyline) { // Remove temp polyline when editing connection
+    map.removeLayer(polyline);
+  }
+  if (secondMarker) { // Remove temp first marker when editing connection
+    map.removeLayer(secondMarker);
+  }
+  if (firstMarker) { // Remove temp second marker when editing connection
+    map.removeLayer(firstMarker);
+  }
+}
 
 function postKoblingData(data){
   fetch('/api/pois/kobling', {
@@ -1061,17 +1132,31 @@ function postKoblingData(data){
     },
     body: JSON.stringify(data)
   }).then(function(res) {
-    if (secondMarker) {
-      map.removeLayer(secondMarker);
-    }
-    if (firstMarker) {
-      map.removeLayer(firstMarker);
-    }
-    if (polyline) {
-      map.removeLayer(polyline);
-    }
-    //console.log(res)        
   }).catch(function(err) {
     console.log("error", err)
   });
+}
+
+function handleDeleteAccociatePoint(id) {
+  if (confirm(`vil du fjerne koblingen til punkt ${id}?`)) {
+    fetch('/api/pois/kobling/' + id, {
+      method: 'DELETE',
+    })
+    .then(function(res){
+      connections.clearLayers(); // Remove connection lines from map
+      bindPointActive = false;
+      $("#bind-point-panel").hide(); // remove infopanel
+      $('#bind-point-id-val').val(""); // reset value
+      if (firstMarker) {
+        map.removeLayer(firstMarker);
+      }
+      return res.json()
+    })
+    .then(function(res){
+      console.log(res)
+    })
+    .catch(function(err) {
+      console.log("error", err)
+    });
+  }
 }
