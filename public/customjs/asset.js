@@ -213,14 +213,10 @@ strindasluk.on('click', markerOnClick);
 // };
 
 var tempIcon = L.icon({
-  iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+  iconUrl: '/images/iconfinder_Location.svg',
   //iconUrl: 'https://png.pngtree.com/element_pic/17/04/18/c631b7cf64373bdb37049a3bb250dd9a.jpg',
-  //shadowUrl: 'leaf-shadow.png',
-  iconSize: [400, 250],
-  iconSize: [25, 41],
-  //iconAnchor: [200, 125],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
+  iconSize: [38, 50],
+  iconAnchor: [18, 42],
 });
 
 function isValidDate(d) {
@@ -751,7 +747,7 @@ $('#confirm-object').on('hidden.bs.modal', function () {
 
 // Add in a crosshair for the map
 let crosshairIcon = L.icon({
-  iconUrl: '/images/crosshair.png',
+  iconUrl: '/images/Crosshair.svg',
   className: 'crosshairIcon',
   iconSize: [100, 100], // size of the icon
   iconAnchor: [50, 50], // point of the icon which will correspond to marker's location

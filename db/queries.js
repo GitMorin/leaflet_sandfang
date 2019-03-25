@@ -14,7 +14,7 @@ const getLast = "SELECT row_to_json(fc) FROM ( SELECT 'FeatureCollection' As typ
 
 const allbbox = `SELECT row_to_json(fc) FROM ( SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features 
 FROM (SELECT 'Feature' As type,
-   ST_AsGeoJSON(ST_Transform(lg.geom,4326),4)::json As geometry, 
+   ST_AsGeoJSON(ST_Transform(lg.geom,4326),8)::json As geometry, 
    row_to_json(
        (SELECT l FROM (SELECT id, asset_type) As l)) As properties 
       FROM poi As lg where geom && ST_MakeEnvelope(?, ? ,?, ?, 4326)
