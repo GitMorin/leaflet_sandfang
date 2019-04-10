@@ -67,13 +67,6 @@ let basemaps = L.layerGroup()
 $(".dropdown-item.bg").click(function(event) {
   event.preventDefault();
   let selectedLayer = ($(this).attr("value")); // return string
-
-  layer = $(this).data('foo', {OpenStreetMap_Mapnik: 'bar'});
-  obj = ($(this).data('foo'));
-  console.log(typeof(obj['bar']));
-  console.log($(this).data('foo'));
-  console.log(typeof(Object.keys(obj)[0]));
-
   basemaps.clearLayers()
   basemaps.addLayer(selectedBaseLayer(selectedLayer));
 });
@@ -117,7 +110,7 @@ $('#hideEditSandfangSkadeForm').click(function (e) {
   $('#editSandfangSkade').hide();
 });
 
-// assign color to marker
+// assign color to marker - gjør om hvis annen egenskap styr type of asset
 function getColor(asset) {
   switch (asset) {
     case 'sandfang':
@@ -282,6 +275,7 @@ function showInfo(current_id, layer) {
               <input type="hidden" value="${skade.skade_type}" name="skade_type">
               <input type="hidden" value="${skade.skader_id}" name="skader_id">
               <input type="hidden" value="true" name="reparert">          
+              <input type="hidden" value="now()" name="reparert_dato"> 
               <button type="submit" class="btn btn-danger btn-sm float-right">Fjern skade</button> 
           </form>   
           </li>
@@ -302,7 +296,6 @@ function showInfo(current_id, layer) {
     url: getOneUrl
   })
   .done(function(data){
-    console.log(current_id);
     //console.log('appending ' + data.merkned);
     $(".featureType").append(data.asset_type);
     $(".featureId").append(current_id);
@@ -447,7 +440,7 @@ $('#registrerSkadeForm').submit(function (e) {
   }).get();
 
   let object = {}
-  object.poi_id = current_id;
+  object.assets_id = current_id;
   object.skade_type = selectedDamage;
   console.log(object);
   skaderJSON = JSON.stringify(object);
@@ -478,7 +471,8 @@ function postDamage(damage) {
           <form action="api/pois/skade/${e.skader_id}/edit" class="edit-skader-form">
               <input type="hidden" value="${e.skade_type}" name="skade_type">
               <input type="hidden" value="${e.skader_id}" name="skader_id">
-              <input type="hidden" value="true" name="reparert">          
+              <input type="hidden" value="true" name="reparert">
+              <input type="hidden" value="now()" name="reparert_dato">          
               <button type="submit" class="btn btn-danger btn-sm float-right">Fjern skade</button> 
           </form>   
         </li>
@@ -501,12 +495,11 @@ $('#infoForm').submit(function(e) {
   e.preventDefault();
   let formData = $(this).serializeArray();
   let url = '/api/pois/' + current_id;
-  console.log(url);
   console.log(formData);
   if ( $('#checkKritisk').is(':checked') ) {
    // do nothing
   } else {
-    formData.push({name: "kritisk_merkned", value: "false"})
+    formData.push({name: "kritisk_merknad", value: "false"})
     console.log('added false checked');
 };
 
@@ -517,8 +510,8 @@ $('#infoForm').submit(function(e) {
   }).done(function(data){
     console.log(data.merkned);
   //  $('#infoForm').trigger("reset");
-    $("#infoMerknedTextArea").val(data.merkned);
-    if (data.kritisk_merkned == true) {
+    $("#infoMerknedTextArea").val(data.merknad);
+    if (data.kritisk_merknad == true) {
       //set info Kritisk merked ja/nei
       console.log('setting checkbox to cheked')
         $('.kritiskBool').text('Ja').css('.text-danger');
@@ -528,15 +521,12 @@ $('#infoForm').submit(function(e) {
         $('span.text-right.kritiskBool').css('color','black')};
     
       // set edit form check kritisk merkned t/f
-    if (data.kritisk_merkned == true) {
+    if (data.kritisk_merknad == true) {
         $('#checkKritisk').prop('checked', 1);
       }  else $('#checkKritisk').prop('checked', 0);  
 
     $('#sandfangInfo').show();
     $('#editSandfangInfo').hide();
-    // show regular pane with new info
-    // clear form on close modal
-    console.log('data sent to server ' + data)
   });
 });
 
@@ -544,12 +534,24 @@ $('#registrerTommingForm').submit(function (e) {
   e.preventDefault();
   let formData = $(this).serializeArray();
   formData.push({
-    name: 'poi_id',
+    name: 'assets_id',
     value: current_id
   });
-  console.log(formData);
   let fyllingsgrad = formData[0].value;
-  console.log(fyllingsgrad);
+
+  function getDate()
+  {
+      var today = new Date();
+      var dd = today.getDate();
+      var mm = today.getMonth()+1; //January is 0!
+      var yyyy = today.getFullYear();
+    var hour = today.getHours();
+    var min = today.getMinutes();
+    
+      if(dd<10){dd='0'+dd} if(mm<10){mm='0'+mm}
+      today = yyyy+"-"+mm+"-"+dd+" "+hour+":"+min;
+    return today
+  }
 
   $.post({
       type: 'POST',
@@ -573,8 +575,6 @@ $('#registrerTommingForm').submit(function (e) {
       // add new tomming to list
       // find how many rows table has
       let rows = $('#sandfangLogTable tr').length;
-      //$('#myTable tr').size()
-      console.log(rows);
       // fill in regdato (this can be refactored)
       var dager = ["Søndag", "Mondag", "Tirsdag", "Onsdag", "Torsdag", "Fredag", "Lørdag"];
       let regdato = new Date();
@@ -663,12 +663,11 @@ $('#slettBilde').click(function(e) {
   })
 });
 
-// when infoModal close do actions
+// when click outside infoModal
 $('#infoModal').on('hidden.bs.modal', function () {
   console.log('clicked outside modal');
-  // Make first tab active in modal
   $('#sandfangLogTable > tbody > tr:nth-child(n+1)').remove(); // clear Tømming log table
-  $('a.nav-item').removeClass('active');
+  $('a.nav-item').removeClass('active'); // Make first tab active in modal
   $('a.nav-item:first').addClass('active');
   $("#slettBilde").css("display", "none");
 
@@ -820,7 +819,7 @@ $('#search-id').submit(function (e) { // handle the submit event
       if(data === undefined || data.length == 0){
         alert('Inget objekt med den id');
       } else {
-        console.log(data[0].id);
+        console.log(data[0]);
         let myStyle = ({
           radius: 16,
           weight: 3,
@@ -846,7 +845,7 @@ $('#search-id').submit(function (e) { // handle the submit event
         
       group1.bringToBack();
       setTimeout(function(){ map.removeLayer(foundLayer); }, 5000);
-        return map.flyTo(foundLayer.getBounds().getCenter() ,17);
+        return map.flyTo(foundLayer.getBounds().getCenter() ,19);
       }   
     });
 });
@@ -861,8 +860,7 @@ map.on('moveend', function() {
   if (sandfang || bisluk || strindasluk) {
     clusters.clearLayers();
   };
-  // need a promise function here to do .bringToBack(); once the 
-  // Hack
+  // Hack to bring filter tomming to front (on top of the other assets) will need to be done by a promis to run bring to front once getCheckedAssetBoxes has return res
   getCheckedAssetBoxes();
   setTimeout(function(){ 
     if (filterTomming) {
@@ -935,9 +933,9 @@ function getTommingBetween(from, to) {
       filterTomming.addTo(map);
     });
   })
-  // .catch(function (error) {
-  //   alert(error);
-  // });
+  .catch(function (error) {
+    console.log(error);
+  });
 }
 
 $('#tommingFilter-checkbox').change(function() {
@@ -1081,8 +1079,8 @@ function handleSaveAccociatedPoint() {
   } else {
     if (confirm(`vil du koble ${idOfAssociatePoint} med ${current_id}?`)) {
       data = {}
-      data.poi_id = current_id
-      data.til_poi_id = idOfAssociatePoint
+      data.assets_id = current_id
+      data.til_assets_id = idOfAssociatePoint
       postKoblingData(data);
       bindPointActive = false;
       $("#bind-point-panel").hide(); // remove infopanel
@@ -1149,7 +1147,7 @@ function handleDeleteAccociatePoint(id) {
       return res.json()
     })
     .then(function(res){
-      console.log(res)
+      //console.log(res)
     })
     .catch(function(err) {
       console.log("error", err)

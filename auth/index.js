@@ -13,7 +13,8 @@ router.get('/login', function (req, res) {
   res.render('../views/pages/login'); // Use the admin example to if that work. If user is not admin or whatever dont show admin href
 });
 
-router.get('/signup', authMiddlewear.ensureLoggedIn, authMiddlewear.isAdmin, function (req, res) {
+//router.get('/signup', authMiddlewear.ensureLoggedIn, authMiddlewear.isAdmin, function (req, res) {
+  router.get('/signup', authMiddlewear.ensureLoggedIn, authMiddlewear.isAdmin, function (req, res) {
   res.render('../views/pages/signup');
 });
 
@@ -123,7 +124,7 @@ router.post('/login', urlencodedParser, (req, res, next) => {
             // res.json({
             //   message: 'Logged in!'
             // });
-            res.render("'../views/pages/map', {message:'admin'}"); // Tror admin kan tas bort
+            res.render('../views/pages/map'); // Tror admin kan tas bort
             //res.render("login', { title: 'Login"});
 
           } else {

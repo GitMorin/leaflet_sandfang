@@ -1,5 +1,6 @@
 // will need a production connection when we deploy
-const environment = process.env.NODE_ENV || 'development';
+//const environment = process.env.NODE_ENV || 'development';
+const environment = 'development';
 
 // the knex file
 const config = require('../knexfile');

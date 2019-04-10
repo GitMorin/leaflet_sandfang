@@ -9,7 +9,6 @@ multer            = require('multer');
 const app = express();
 
 const pois = require('./api/pois'); // Import pois router to app.js
-//this gets so messey here... no sense, need to clean up
 const map = require('./routes/map'); // Imports the map route to app.js
 const upload = require('./routes/imgupload'); // Import the img upload route to app.js
 const auth = require('./auth/index');

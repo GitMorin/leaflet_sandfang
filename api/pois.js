@@ -65,24 +65,22 @@ router.get('/tomming/:id', (req, res) => {
 
 router.post('/skade', (req, res) => 
 { 
-  //console.log('im in route now');
   damages = req.body.skade_type;
-  poi_id = req.body.poi_id;
+  assets_id = req.body.assets_id;
   let data = [];
   
   damages.forEach(e => {
     let obj = {};
-    obj.poi_id = poi_id;
+    obj.assets_id = assets_id;
     obj.skade_type = e;
     data.push(obj);
   });
-  console.log(data)
   queries.createSkade(data)
     .then(skader => {
       res.json(skader);
     })
     .catch(function (err) {
-      console.error('get comment error ' + err);
+      console.error('Error create skade ' + err);
     });
 });
 
@@ -113,14 +111,14 @@ router.get('/:id', (req, res) => {
 
 router.post('/', (req, res) => {
   console.log(req.body.asset_type);
-  const poi = {
+  const data = {
     asset_type: req.body.asset_type,
     geom: 'POINT(' + req.body.xCoord + ' ' + req.body.yCoord + ')',
   };
-  queries.create(poi)
-  .then(poi => {
-    console.log(poi[0]);
-    res.json(poi[0]);
+  queries.create(data)
+  .then(data => {
+    console.log(data[0]);
+    res.json(data[0]);
   })
    .catch(err => {
     console.error('New poi error', err);
@@ -145,7 +143,7 @@ router.put('/skade/:id/edit', (req, res) => {
     res.json(skade[0]);
   })
   .catch(err => {
-    console.error('Update POI error', err);
+    console.error('Update skader error', err);
   });
 });
 
@@ -173,17 +171,17 @@ router.get('/find/:id', (req, res) => {
 router.get('/tomming/:from/:to', (req, res) => {
   // get poi id
   queries.tommingBetween(req.params.from, req.params.to)
-  .then(function(pois) {
-    if (!pois.rows.length > 0) {
+  .then(function(data) {
+    if (!data.rows.length > 0) {
       //return console.log("No results found");
       res.json({message: "Ingen Tømming registrert mellom valgt tidsperiode"});
     } else {
-      result = pois.rows.map(function(id) {
-        return id.poi_id
+      result = data.rows.map(function(id) {
+        return id.assets_id
       })
       return queries.getManyAssets(result)
-      .then(function(pois){
-          res.json(pois.rows[0].row_to_json);
+      .then(function(data){
+          res.json(data.rows[0].row_to_json);
       })
       .catch(err => {
         console.error('Something went wrong in tommingBetween', err);
@@ -191,7 +189,7 @@ router.get('/tomming/:from/:to', (req, res) => {
     }
   })
   .catch(err => {
-    console.error(err);
+    console.error("get tommingBetwee "+err);
   });
 });
 
@@ -216,16 +214,15 @@ router.get('/kobling/:id', (req, res) => {
       res.json({message: "Ingen kobling ennå registrert til punktet"});
     } else {
       let listOfIds = []
-      let objtest = {}
 
       data.forEach(el =>{ // create list with objects of { uuid: 25, id: 451 }
         let uuidObj = {}
         uuidObj["uuid"] = el.id;
-        uuidObj["id"] = el.til_poi_id;
+        uuidObj["id"] = el.til_assets_id;
         listOfIds.push(uuidObj);
       })
       result = data.map(function(id) { // return list of ids [ 451, 317, 504 ]
-        return id.til_poi_id
+        return id.til_assets_id
       })
       console.log(listOfIds);
       return queries.getLatLngOfAsset(result)
