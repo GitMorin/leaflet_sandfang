@@ -17,7 +17,8 @@ router.use(logger);
 const storage = multer.diskStorage({
   destination: './public/uploads/',
   filename: function(req, file, cb){ //passing callback as argument
-    cb(null, Date.now() + path.extname(file.originalname)); // executing the callback
+    console.log(file.originalname);
+    cb(null, Date.now().toString()  + path.extname(file.originalname)); // executing the callback
   }
 });
 
@@ -45,21 +46,23 @@ function checkFileType(file, cb){
 router.post('/', function(req, res) {
   upload(req, res, function (err) {
     if (err){
-      console.log(err);
-    }
-    //console.log(req);
-    // sharp config
+      console.log("upload image error " + err)
+    } 
     let width = 500;
-    //let height = null;
-    sharp(req.file.path) //place where sharp find image
-    .resize(width, null)
-    .toFile('./public/uploads/thumb/thumb_'+req.file.filename, function(err){
-      //console.log('sharp worked reduced file size!')
-      if(!err){
-        //res.send({file: `uploads/${req.file.filename}`});
-        res.send({file: `uploads/thumb/thumb_${req.file.filename}`});
-      }
-    });
+ 
+    if (typeof(req.file) !== 'undefined') {
+      sharp(req.file.path) //place where sharp find image
+      .resize(width, null)
+      .toFile('./public/uploads/thumb/thumb_'+req.file.filename, function(err){
+        //console.log('sharp worked reduced file size!')
+        if(!err){
+          res.send({file: `uploads/thumb/thumb_${req.file.filename}`});
+        }
+      })
+    } else {
+      console.log("path not defined");
+      res.send({"msg":"Inget bilde valgt"});
+    }
   });
 });
 

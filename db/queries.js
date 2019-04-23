@@ -76,7 +76,7 @@ module.exports = {
   getTomming(id) {
     const sql = knex.from('sandfang.tomming')
     .where('assets_id', id);
-    console.log(sql.toString());
+    //console.log(sql.toString());
     return sql;
   },
   createSkade(damages) {

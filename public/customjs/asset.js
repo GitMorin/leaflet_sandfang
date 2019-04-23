@@ -219,7 +219,7 @@ function isValidDate(d) {
 // get feature of layer to be used to fill modal!
 // THIS WORKS but should probably be refactored...
 function showInfo(current_id, layer) {
-  let url = '/api/pois/tomming/' + current_id;
+  let url = '/sandfang/api/pois/tomming/' + current_id;
   $.get({
       url: url
     })
@@ -256,7 +256,7 @@ function showInfo(current_id, layer) {
       console.log('Status: ' + status + '\n' + 'Error: ' + error);
     });
 
-  let urlSkade = '/api/pois/skade/' + current_id;
+  let urlSkade = '/sandfang/api/pois/skade/' + current_id;
   $.get({
       url: urlSkade
     })
@@ -271,7 +271,7 @@ function showInfo(current_id, layer) {
           <span>
             ${rename}
           </span> 
-          <form action="api/pois/skade/${skade.skader_id}/edit" class="edit-skader-form">
+          <form action="/sandfang/api/pois/skade/${skade.skader_id}/edit" class="edit-skader-form">
               <input type="hidden" value="${skade.skade_type}" name="skade_type">
               <input type="hidden" value="${skade.skader_id}" name="skader_id">
               <input type="hidden" value="true" name="reparert">          
@@ -291,7 +291,7 @@ function showInfo(current_id, layer) {
 
   // populated infoForm
 
-  let getOneUrl = '/api/pois/' + current_id;
+  let getOneUrl = '/sandfang/api/pois/' + current_id;
   $.get({
     url: getOneUrl
   })
@@ -303,12 +303,11 @@ function showInfo(current_id, layer) {
     $('#infoMerknedTextArea').val(data.merkned);
     $("#editMerknedTextArea").val(data.merkned);
     if (!(data.img_name == null || data.img_name == 'deleted')) {
+      $("#slettBilde").removeClass("d-none");
+      $("#stort-bilde-lenke").removeClass("d-none");
       $('#asset-image').attr("src", '../' + data.img_name); // set src to thumb pic
       $('#stort-bilde-lenke').attr("href", "map/"+current_id+"/stortbilde/"+data.img_name.substring(data.img_name.length - 17));
-      //$('#asset-image').attr("src", '../' + data.img_name);
       $("#imageForm").hide();
-      $("#slettBilde").css("display", "block");
-      // add link to display large image
       // add small camera icon or something if image exist
     }
     if (data.kritisk_merkned == true) {
@@ -385,7 +384,7 @@ $('#registrert-skader-list').on('submit', '.edit-skader-form', function(e) {
 
 function getPoints(bbox, asset_type){
   //let asset_type = 'sandfang'
-  $.get({ url: '/api/pois/type/' + asset_type + '/bbox/'+ bbox})
+  $.get({ url: '/sandfang/api/pois/type/' + asset_type + '/bbox/'+ bbox})
   .done(function (data) {
     getAssets(data);
   })
@@ -401,10 +400,10 @@ $('#newPoiForm').submit(function (e) { // handle the submit event
   let formData = $(this).serialize();
   // post new asset and add the latest point on the map
 
-  $.post({type: 'POST', url: '/api/pois/', data: formData})
+  $.post({type: 'POST', url: '/sandfang/api/pois/', data: formData})
   .then(function(data){
     console.log('New asset submitted');
-    return $.get({url: '/api/pois/last'});
+    return $.get({url: '/sandfang/api/pois/last'});
   }).then(function(data, textStatus, xhr) {
     console.log(data);
 
@@ -452,7 +451,7 @@ function postDamage(damage) {
   console.log(damage);
   $.ajax({
       type: "POST",
-      url: '/api/pois/skade',
+      url: '/sandfang/api/pois/skade',
       data: damage,
       contentType: "application/json; charset=utf-8",
     }).done(function (skade) {
@@ -468,7 +467,7 @@ function postDamage(damage) {
           <span>
           ${renameSkade(e.skade_type)}
           </span>
-          <form action="api/pois/skade/${e.skader_id}/edit" class="edit-skader-form">
+          <form action="/sandfang/api/pois/skade/${e.skader_id}/edit" class="edit-skader-form">
               <input type="hidden" value="${e.skade_type}" name="skade_type">
               <input type="hidden" value="${e.skader_id}" name="skader_id">
               <input type="hidden" value="true" name="reparert">
@@ -494,7 +493,7 @@ function postDamage(damage) {
 $('#infoForm').submit(function(e) {
   e.preventDefault();
   let formData = $(this).serializeArray();
-  let url = '/api/pois/' + current_id;
+  let url = '/sandfang/api/pois/' + current_id;
   console.log(formData);
   if ( $('#checkKritisk').is(':checked') ) {
    // do nothing
@@ -555,7 +554,7 @@ $('#registrerTommingForm').submit(function (e) {
 
   $.post({
       type: 'POST',
-      url: '/api/pois/tomming',
+      url: '/sandfang/api/pois/tomming',
       data: formData
     })
     .done(function (data) {
@@ -596,15 +595,10 @@ $('#registrerTommingForm').submit(function (e) {
 //post image
 $('#imageForm').submit(function(e) {
   e.preventDefault();
-
   let form = $('#imageForm')[0];
-  // test what happens if this is serialized as normal now when it works
+  // velg bilde at laste opp
   let formData = new FormData(form);
 
-  //var formData = new FormData($("myImage")[0]);//data = $("myImage")
-  //let formData = $(this).serialize();
-  console.log(formData);
-  //let formData = new FormData(this);
   $.post({
     type: 'POST',
     url: '/upload',
@@ -614,63 +608,63 @@ $('#imageForm').submit(function(e) {
     contentType: false,
     processData: false,
   }).done(function(data){
-    $('#slettBilde').show(); // show slett bilde button
-    // changing objekt key name from file to img_name
-    // not neccesary but increase readability
-    // migt want to strip off the file path from the file name
-    data.img_name = data.file
-    delete data.file;
-    console.log(JSON.stringify(data));
-    $.ajax({
-      url: '/upload/' + current_id,
-      type: 'PUT',
-      dataType: "json",
-      data: data,
-    }).done(function(data){
-      $('#asset-image').attr("src", '../' + data.img_name)
-      $(".custom-file-label").text('');
-      $("#imageForm").hide();
-      console.log(`Updated img_name for id ${current_id} with ${data.img_name}`);
-      //console.log(JSON.stringify(data));
-      // make function to clear form and image when modal close
-    });
+    if (data.msg !== 'Inget bilde valgt') {
+      data.img_name = data.file
+      delete data.file;
+      console.log(data);
+      $.ajax({
+        url: '/upload/' + current_id,
+        type: 'PUT',
+        dataType: "json",
+        data: data,
+      }).done(function(data){
+        $('#slettBilde').removeClass('d-none');
+        $("#stort-bilde-lenke").removeClass("d-none");
+        $('#asset-image').attr("src", '../' + data.img_name)
+        $(".custom-file-label").text('Inget bilde valgt..');
+        $("#imageForm").hide();
+        console.log(`Updated img_name for id ${current_id} with ${data.img_name}`);
+      });
+    } else {
+      console.log(data.msg)
+      // append html to page with msg
+      // Vis meddelande at inget bilder er valgt
+    }
   });
 });
 
 $('#slettBilde').click(function(e) {
-  e.preventDefault();
-  // get image name from src tag
-  // add it to the body element to pass it to server where the image is deleted.
-  var filesToDelete = [] 
-  let imageSource = $('#asset-image').prop('src')
-  filesToDelete.push('public/uploads/' + imageSource.substring(imageSource.length - 17));
-  filesToDelete.push('public/uploads/thumb/' + imageSource.substring(imageSource.length - 23)); // include thumb_)
-
-  let data = { "img_name" : "deleted" }
-  data.deleteImg = filesToDelete; // add image array to delete to data obj
-  console.log(data);
-
-  $.ajax({
-    url: '/upload/delete/' + current_id,
-    type: 'PUT',
-    contentType: "application/json",
-    data: JSON.stringify(data),
-  }).done(function(data){
-    console.log(data.img_name);
-    $('#asset-image').attr("src", '')
-    $("#slettBilde").css("display", "none");
-    $("#imageForm").show();
-  })
+  if (confirm(`vil du koble slette bildet? Kan ikke gjennskapes`)) {
+    e.preventDefault();
+    // get image name from src tag
+    // add it to the body element to pass it to server where the image is deleted.
+    var filesToDelete = [] 
+    let imageSource = $('#asset-image').prop('src')
+    filesToDelete.push('public/uploads/' + imageSource.substring(imageSource.length - 17));
+    filesToDelete.push('public/uploads/thumb/' + imageSource.substring(imageSource.length - 23)); // include thumb_)
+  
+    let data = { "img_name" : "deleted" }
+    data.deleteImg = filesToDelete; // add image array to delete to data obj
+  
+    $.ajax({
+      url: '/sandfang/upload/delete/' + current_id,
+      type: 'PUT',
+      contentType: "application/json",
+      data: JSON.stringify(data),
+    }).done(function(data){
+      $('#asset-image').attr("src", '')
+      $("#stort-bilde-lenke").addClass("d-none");
+      $("#slettBilde").addClass("d-none");
+      $("#imageForm").show();
+    })
+  }
 });
 
 // when click outside infoModal
 $('#infoModal').on('hidden.bs.modal', function () {
-  console.log('clicked outside modal');
   $('#sandfangLogTable > tbody > tr:nth-child(n+1)').remove(); // clear Tømming log table
   $('a.nav-item').removeClass('active'); // Make first tab active in modal
   $('a.nav-item:first').addClass('active');
-  $("#slettBilde").css("display", "none");
-
 
   // Clear Skade table
   $('.list-group.skadeLog > li:nth-child(n+2)').remove();
@@ -692,11 +686,13 @@ $('#infoModal').on('hidden.bs.modal', function () {
   $('span.text-right.kritiskBool').css('color','black');
   // $('#exampleCheck1').prop('checked', 0);
 
-  // Bilde tab
+  // Bilde tab - reset
   // remove src attr
   $(".custom-file-label").text('Inget bilde valgt...'); // inget bilde valgt
   $('#asset-image').attr("src", '');
   $("#imageForm").show();
+  $('#slettBilde').addClass('d-none');
+  $("#stort-bilde-lenke").addClass("d-none");
 });
 
 // click lagre object
@@ -785,7 +781,6 @@ $('#myDropdown').on('click', function(event) {
 
 $("input[type=file]").change(function () {
   var fieldVal = $(this).val();
-
   // Change the node's value by removing the fake path (Chrome)
   fieldVal = fieldVal.replace("C:\\fakepath\\", "");
   if (fieldVal != undefined || fieldVal != "") {
@@ -813,7 +808,7 @@ $('#search-id').submit(function (e) { // handle the submit event
   var searchstring = $('#search-field');
   //add all pois
   $.get({ 
-    url: '/api/pois/find/' + searchstring.val(),
+    url: '/sandfang/api/pois/find/' + searchstring.val(),
     })
     .done(function (data) {
       if(data === undefined || data.length == 0){
@@ -922,7 +917,7 @@ $(function () {
 function getTommingBetween(from, to) {
   filterTomming.clearLayers();
   $.get({
-    url: '/api/pois/tomming/' + from + '/' + to
+    url: '/sandfang/api/pois/tomming/' + from + '/' + to
   })
   .done(function (data) {
     if (data.message) {
@@ -1038,7 +1033,7 @@ $("#bind-point-btn-avbryt").click(function(e){
 let connections = L.featureGroup();
 
 function showConnectedlines(id) {
-  fetch('/api/pois/kobling/' + id)
+  fetch('/sandfang/api/pois/kobling/' + id)
   .then(function(res) { 
     return res.json()
   })
@@ -1118,7 +1113,7 @@ function handleBindPointTilbakeButton() {
 }
 
 function postKoblingData(data){
-  fetch('/api/pois/kobling', {
+  fetch('/sandfang/api/pois/kobling', {
     method: 'POST',
     headers: {
       'Accept': 'application/json',
@@ -1133,7 +1128,7 @@ function postKoblingData(data){
 
 function handleDeleteAccociatePoint(id) {
   if (confirm(`vil du fjerne koblingen til punkt ${id}?`)) {
-    fetch('/api/pois/kobling/' + id, {
+    fetch('/sandfang/api/pois/kobling/' + id, {
       method: 'DELETE',
     })
     .then(function(res){

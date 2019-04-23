@@ -300,7 +300,7 @@
                     </strong> etter du har utført nødvendig reparasjon på objektet for å fjerne det fra listen</li>
                   <!-- Database will fill in the rest -->
                 </ul>
-                <div class="center-btn">
+                <div class="center-btn row justify-content-center mt-2">
                   <button type="button" id="btnEditSandfangSkade" class="btn btn-primary">Registrere Skade</button>
                 </div>
               </div>
@@ -348,21 +348,25 @@
           <!-- Sandfang skade pane end -->
 
           <div class="tab-pane" id="sandfangBilde">
-            <!--<%= typeof msg != 'undefined' ? msg : '' %>
-            <img src="<%= typeof file != 'undefined' ? file : '' %>" class="img-fluid">-->
             <img src="" id="asset-image" class="img-fluid">
-            <a href="" class="badge badge-success" id="stort-bilde-lenke">Stort bilde</a>
             <form action="/upload" method="POST" enctype="multipart/form-data" id="imageForm">
               <div class="custom-file">
                 <input  name="myImage" type="file" class="custom-file-input" id="myImage">
                 <label class="custom-file-label" for="customFile">Inget bilde valgt..</label>
+                <input  name="asset_id" type="text" class="" id="image-asset_id" value="9999">
               </div>
               <br>
               <br>
               <input id="submitImage" class="btn btn-info btn-sm" type="submit" value="Last opp">
             </form>
+            
             <!-- INSERT DELETE FORM HERE -->
-            <button id="slettBilde" type="button" class="btn btn-danger btn-sm" type="submit">Slett bilde</button>
+            <div class="container">
+            <div class="d-flex row justify-content-between mt-2">
+              <div><a href="" class="btn btn-info btn-sm d-none" id="stort-bilde-lenke">Vis stort bilde</a></div>
+              <div><button id="slettBilde" type="button" class="btn btn-danger btn-sm d-none" type="submit">Slett bilde</button></div>
+            </div>
+          </div>
           </div>
         </div>
         <!-- Tab content end -->

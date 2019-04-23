@@ -26,10 +26,10 @@ app.use(cookieParser('keyboard_cat'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/scripts', express.static(__dirname + '/node_modules/leaflet.locatecontrol/dist/'));
 
-app.use('/auth', auth)
-app.use('/api/pois', pois);
-app.use('/', authMiddlewear.ensureLoggedIn, map);
-app.use('/upload', upload);
+app.use('/sandfang/auth', auth)
+app.use('/sandfang/api/pois', pois);
+app.use('/sandfang/', authMiddlewear.ensureLoggedIn, map);
+app.use('/sandfang/upload', upload);
 
 //catch 404 and forward error to handler
 app.use(function(req, res, next) {

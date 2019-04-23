@@ -12,3 +12,5 @@ todo.txt
 
 public/uploads/*jpg
 public/uploads/thumb/*jpg
+public/uploads/*gif
+public/uploads/thumb/*gif

@@ -341,12 +341,6 @@ label span.label-text {
   content: "Elegir";
 }
 
- /* Slett bilde button default */
-#slettBilde {
-  margin-top: 5px;
-  display: none;
-}
-
 #search-field {
   width: 75px;
 }
